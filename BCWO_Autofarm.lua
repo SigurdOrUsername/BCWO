@@ -353,9 +353,14 @@ RunService.Stepped:connect(function()
 
                 else
 
-                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 5000, 0)
+                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame + Vector3.new(0, 500, 0)
+                    --[[
+                    local DifferenceX = Player.Character.HumanoidRootPart.Position.X - MainPart.Position.X
+                    local DifferenceY = Player.Character.HumanoidRootPart.Position.Y - MainPart.Position.Y
+                    local DifferenceZ = Player.Character.HumanoidRootPart.Position.Z - MainPart.Position.Y
+                    ]]
 
-                    Tool.Grip = CFrame.new(2, 5000, 6)
+                    Tool.Grip = CFrame.new(2, 500, 6)
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
                         0
