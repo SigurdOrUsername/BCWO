@@ -241,8 +241,6 @@ for Index, Value in next, getconnections(Player.Idled) do
 end
 
 local ToolName
-local AnimationDebounce = false
-
 for Index, Value in next, Player.Character:GetChildren() do
     if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
         Value:ClearAllChildren()
@@ -288,7 +286,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, unpack(Args))
 end)
 
-local Animator
+--local Animator
 RunService.Stepped:connect(function()
     local Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
@@ -312,7 +310,8 @@ RunService.Stepped:connect(function()
 
         if AutofarmMobs or FarmNonBlacklistedOre then
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-
+        
+        --[[
             if Player.Character.Humanoid:FindFirstChild("Animator") then
                 Animator = Player.Character.Humanoid:FindFirstChild("Animator")
             end
@@ -326,6 +325,7 @@ RunService.Stepped:connect(function()
             if Animator then
                 Animator.Parent = Player.Character.Humanoid
             end
+        ]]--
         end
 
         if AutofarmMobs and ToolName then
@@ -378,9 +378,9 @@ RunService.Stepped:connect(function()
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000))
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000)) * CFrame.fromOrientation(0, 0, 0)
 
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 19, 2) --19 = 1000
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 18, 2) --19 = 1000
 
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
