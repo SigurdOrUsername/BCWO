@@ -374,13 +374,13 @@ RunService.Stepped:connect(function()
                     end)
 
                 else
-                    warn("working")
+                    --warn("working")
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
                     Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 2000)) * CFrame.fromOrientation(0, 0, 0)
 
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 36 + math.random(1, 3), 2) --19 = 1000
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(-2, 37 + math.random(1, 3), 2) --19 = 1000
 
                     task.spawn(function()
                         Tool.RemoteFunction:InvokeServer("hit", {
