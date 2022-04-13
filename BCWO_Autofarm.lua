@@ -355,7 +355,7 @@ RunService.Stepped:connect(function()
 
                     Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 1000, 0)
 
-                    Tool.Grip = CFrame.new(2, 500, 6)
+                    Tool.Grip = CFrame.new(2, 1000, 6)
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
                         0
