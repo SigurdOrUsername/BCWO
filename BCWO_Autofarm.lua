@@ -1,5 +1,7 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/BCWO/main/BCWO_Autofarm.lua?token=GHSAT0AAAAAABTQJQ7F3I6RHIXW7RDTXTGUYSWEQWA", true))()
 
+print("V: 1.0.0")
+
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
@@ -378,11 +380,11 @@ RunService.Stepped:connect(function()
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000)) * CFrame.fromOrientation(0, 0, 0)
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.fromOrientation(0, 0, 0) * CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
 
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(-2, 19 + math.random(1, 3), 2) --19 = 1000
                     --Tool.GripForward = Vector3.new(0, 10, 0)
                     --Tool.GripUp = Vector3.new(0, 0, 10)
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(-2, 19 + math.random(1, 3), 2) --19 = 1000
 
                     task.spawn(function()
                         Tool.RemoteFunction:InvokeServer("hit", {
