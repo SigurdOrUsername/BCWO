@@ -367,7 +367,6 @@ RunService.Stepped:connect(function()
                     end
 
                     task.spawn(function()
-                        task.wait()
                         Tool.RemoteFunction:InvokeServer("shoot", {
                             MainPart.CFrame,
                             Tool.Damage.Value
