@@ -87,7 +87,7 @@ else
     BlacklistData = Settings
 end
 
-if workspace:WaitForChild("Map", 0.5) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines ADD 5 LATER
+if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines
     local Ore_Tab = Window:AddTab("Ore")
     local ESP_Tab = Window:AddTab("ESP Settings")
 
