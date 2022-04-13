@@ -381,17 +381,13 @@ RunService.Stepped:connect(function()
                     Player.Character.Humanoid:ChangeState(0)
                     Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000)) * CFrame.fromOrientation(0, 0, 0)
 
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 17 + math.random(1, 3), 2) --19 = 1000
+
                     task.spawn(function()
-                        for Index = 1, 3 do
-                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 17 + Index, 2) --19 = 1000
-                            task.spawn(function()
-                                Tool.RemoteFunction:InvokeServer("hit", {
-                                    Tool.Damage.Value,
-                                    0
-                                })
-                            end)
-                            task.wait()
-                        end
+                        Tool.RemoteFunction:InvokeServer("hit", {
+                            Tool.Damage.Value,
+                            0
+                        })
                     end)
                 end
             end
