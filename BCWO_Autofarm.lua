@@ -317,12 +317,14 @@ RunService.Stepped:connect(function()
                 Animator = Player.Character.Humanoid:FindFirstChild("Animator")
             end
 
-            Animator.Parent = nil
+            if Animator then
+                Animator.Parent = nil
+            end
 
         else
             
             if Animator then
-                Animator.Parent = Player.Character.Humanoid
+                --Animator.Parent = Player.Character.Humanoid
             end
         end
 
@@ -366,22 +368,19 @@ RunService.Stepped:connect(function()
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(999 + RndX, 999 + RndY, 999 + RndZ)
                     end
 
-                    task.spawn(function()
-                        task.wait()
-                        Tool.RemoteFunction:InvokeServer("shoot", {
-                            MainPart.CFrame,
+                    Tool.RemoteFunction:InvokeServer("shoot", {
+                        MainPart.CFrame,
                         Tool.Damage.Value
-                        })
-                    end)
+                    })
 
                 else
 
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
-                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 5000, 0)
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000))
 
-                    Tool.Grip = CFrame.new(0, 5000, 83) --These numbers were literally pulled out of my ass, yet they somehow still work (why there's any kind of offsets? IDK)
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 20, 2) --19 = 1000
 
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
