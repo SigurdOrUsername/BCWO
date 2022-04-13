@@ -324,7 +324,7 @@ RunService.Stepped:connect(function()
         else
             
             if Animator then
-                --Animator.Parent = Player.Character.Humanoid
+                Animator.Parent = Player.Character.Humanoid
             end
         end
 
@@ -380,7 +380,7 @@ RunService.Stepped:connect(function()
                     Player.Character.Humanoid:ChangeState(0)
                     Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000))
 
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 20, 2) --19 = 1000
+                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 19, 2) --19 = 1000
 
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
