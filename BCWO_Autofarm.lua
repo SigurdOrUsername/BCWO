@@ -1,4 +1,4 @@
---loadstring(game:HttpGet("https://www.toptal.com/developers/hastebin/eyulewatat.sql", true))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/BCWO/main/BCWO_Autofarm.lua?token=GHSAT0AAAAAABTQJQ7F3I6RHIXW7RDTXTGUYSWEQWA", true))()
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
