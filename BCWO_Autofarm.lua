@@ -23,6 +23,10 @@ end)
 local AutofarmMobs = false
 General_Tab:AddSwitch("Auto attack mobs", function(Value)
     AutofarmMobs = Value
+
+    if not Value then
+        workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid
+    end
 end)
 
 local AutofarmMobName = ""
@@ -83,7 +87,7 @@ else
     BlacklistData = Settings
 end
 
-if workspace:WaitForChild("Map", 5) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines
+if workspace:WaitForChild("Map", 0.5) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines ADD 5 LATER
     local Ore_Tab = Window:AddTab("Ore")
     local ESP_Tab = Window:AddTab("ESP Settings")
 
@@ -187,6 +191,7 @@ end)
 local StatisticsData = {}
 local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Spawns")
 local Statistics_Tab_Drops = Statistics_Tab:AddFolder("Drops")
+local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 
 workspace.ChildRemoved:Connect(function(Child)
     if Child:FindFirstChild("Boss") and Child:FindFirstChild("Humanoid") and Child.Humanoid:FindFirstChild("creator") and Child.Humanoid.creator.Value == Player then
@@ -202,6 +207,12 @@ workspace.ChildRemoved:Connect(function(Child)
 
     end
 end)
+
+--[[
+workspace:FindFirstChildWhichIsA("BoolValue").Name.Changed:Connect(function(Change)
+    print(Change)
+end)
+]]
 
 local function GetClosest()
     local Last = math.huge
@@ -277,6 +288,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, unpack(Args))
 end)
 
+local Animator
 RunService.Stepped:connect(function()
     local Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
@@ -300,6 +312,18 @@ RunService.Stepped:connect(function()
 
         if AutofarmMobs or FarmNonBlacklistedOre then
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+
+            if Player.Character.Humanoid:FindFirstChild("Animator") then
+                Animator = Player.Character.Humanoid:FindFirstChild("Animator")
+            end
+
+            Animator.Parent = nil
+
+        else
+            
+            if Animator then
+                Animator.Parent = Player.Character.Humanoid
+            end
         end
 
         if AutofarmMobs and ToolName then
@@ -328,7 +352,6 @@ RunService.Stepped:connect(function()
         if Tool and Tool:FindFirstChild("RemoteFunction") then
             local Closest = GetClosest()
 
-            getgenv().Penis = -200
             ToolName = Tool.Name
             if (AutofarmMobs) and Closest and Closest:FindFirstChildWhichIsA("Part") then
                 local MainPart = Closest:FindFirstChildWhichIsA("Part")
@@ -353,14 +376,13 @@ RunService.Stepped:connect(function()
 
                 else
 
-                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame + Vector3.new(0, 500, 0)
-                    --[[
-                    local DifferenceX = Player.Character.HumanoidRootPart.Position.X - MainPart.Position.X
-                    local DifferenceY = Player.Character.HumanoidRootPart.Position.Y - MainPart.Position.Y
-                    local DifferenceZ = Player.Character.HumanoidRootPart.Position.Z - MainPart.Position.Y
-                    ]]
+                    workspace.CurrentCamera.CameraSubject = Tool.Handle
 
-                    Tool.Grip = CFrame.new(2, 500, 6)
+                    Player.Character.Humanoid:ChangeState(0)
+                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 5000, 0)
+
+                    Tool.Grip = CFrame.new(0, 5000, 83) --These numbers were literally pulled out of my ass, yet they somehow still work (why there's any kind of offsets? IDK)
+
                     Tool.RemoteFunction:InvokeServer("hit", {
                         Tool.Damage.Value,
                         0
