@@ -311,7 +311,6 @@ RunService.Stepped:connect(function()
         if AutofarmMobs or FarmNonBlacklistedOre then
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
         
-        --[[
             if Player.Character.Humanoid:FindFirstChild("Animator") then
                 Animator = Player.Character.Humanoid:FindFirstChild("Animator")
             end
@@ -325,7 +324,6 @@ RunService.Stepped:connect(function()
             if Animator then
                 Animator.Parent = Player.Character.Humanoid
             end
-        ]]--
         end
 
         if AutofarmMobs and ToolName then
@@ -368,10 +366,13 @@ RunService.Stepped:connect(function()
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(999 + RndX, 999 + RndY, 999 + RndZ)
                     end
 
-                    Tool.RemoteFunction:InvokeServer("shoot", {
-                        MainPart.CFrame,
-                        Tool.Damage.Value
-                    })
+                    task.spawn(function()
+                        task.wait()
+                        Tool.RemoteFunction:InvokeServer("shoot", {
+                            MainPart.CFrame,
+                            Tool.Damage.Value
+                        })
+                    end)
 
                 else
 
@@ -380,12 +381,18 @@ RunService.Stepped:connect(function()
                     Player.Character.Humanoid:ChangeState(0)
                     Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(500, 0, 1000)) * CFrame.fromOrientation(0, 0, 0)
 
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 18, 2) --19 = 1000
-
-                    Tool.RemoteFunction:InvokeServer("hit", {
-                        Tool.Damage.Value,
-                        0
-                    })
+                    task.spawn(function()
+                        for Index = 1, 5 do
+                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(0, 17 + Index, 2) --19 = 1000
+                            task.spawn(function()
+                                Tool.RemoteFunction:InvokeServer("hit", {
+                                    Tool.Damage.Value,
+                                    0
+                                })
+                            end)
+                            task.wait()
+                        end
+                    end)
                 end
             end
         end
