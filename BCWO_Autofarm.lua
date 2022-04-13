@@ -221,7 +221,7 @@ local function GetClosest()
     for Index, Value in next, workspace:GetChildren() do
         local MainPart = Value:FindFirstChildWhichIsA("MeshPart") or Value:FindFirstChildWhichIsA("Part")
 
-        if Value:FindFirstChild("EnemyMain") and MainPart and not Value:FindFirstChild("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
+        if Value:FindFirstChild("EnemyMain") and MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
             
             local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
             if Last > Dist then
