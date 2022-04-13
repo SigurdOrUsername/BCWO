@@ -170,7 +170,7 @@ local Hours = 0
 local TimerTab = Statistics_Tab:AddLabel("Time: 0:0:0")
 
 task.spawn(function()
-    while wait() do
+    while task.wait() do
         Timer = Timer + 1
 
         if Timer == 60 then
@@ -184,7 +184,7 @@ task.spawn(function()
         end
 
         TimerTab.Text = "Time: " .. tostring(Hours) .. ":" .. tostring(Minutes) .. ":" .. tostring(Timer)
-        wait(1)
+        task.wait(1)
     end
 end)
 
