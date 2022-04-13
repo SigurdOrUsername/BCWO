@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/BCWO/main/BCWO_Autofarm.lua?token=GHSAT0AAAAAABTQJQ7F3I6RHIXW7RDTXTGUYSWEQWA", true))()
 
-print("V: 1.0.0")
+print("V: 1.0.1")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -313,6 +313,7 @@ RunService.Stepped:connect(function()
         if AutofarmMobs or FarmNonBlacklistedOre then
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
         
+        --[[
             if Player.Character.Humanoid:FindFirstChild("Animator") then
                 Animator = Player.Character.Humanoid:FindFirstChild("Animator")
             end
@@ -326,6 +327,7 @@ RunService.Stepped:connect(function()
             if Animator then
                 Animator.Parent = Player.Character.Humanoid
             end
+            ]]
         end
 
         if AutofarmMobs and ToolName then
