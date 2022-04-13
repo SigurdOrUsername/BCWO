@@ -353,8 +353,8 @@ RunService.Stepped:connect(function()
             local Closest = GetClosest()
 
             ToolName = Tool.Name
-            if (AutofarmMobs) and Closest and Closest:FindFirstChildWhichIsA("Part") then
-                local MainPart = Closest:FindFirstChildWhichIsA("Part")
+            if AutofarmMobs and Closest and (Closest:FindFirstChildWhichIsA("MeshPart") or Closest:FindFirstChildWhichIsA("Part")) then
+                local MainPart = Closest:FindFirstChildWhichIsA("MeshPart") or Closest:FindFirstChildWhichIsA("Part")
                 
                 if Tool:FindFirstChild("GunMain") then
 
@@ -374,7 +374,7 @@ RunService.Stepped:connect(function()
                     end)
 
                 else
-
+                    warn("working")
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
