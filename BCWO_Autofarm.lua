@@ -58,7 +58,7 @@ Character_Tab:AddSwitch("No cooldown for swinging / shooting", function(Value)
 end)
 
 local MultipleHits = false
-Character_Tab:AddSwitch("Multiple hits", function(Value)
+Character_Tab:AddSwitch("Multiple hits [Lag warning]", function(Value)
     MultipleHits = Value
 end)
 
@@ -258,6 +258,7 @@ local function GetClosest()
     return Closest, MainPart
 end
 
+
 --//Anti Afk
 
 for Index, Value in next, getconnections(Player.Idled) do
@@ -302,6 +303,10 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
                 task.spawn(function()
                     Self.InvokeServer(Self, unpack(Args))
                 end)
+
+                if Args[1] == "shoot" then
+                    task.wait()
+                end
             end
         end)
     end
