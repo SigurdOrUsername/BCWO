@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/BCWO/main/BCWO_Autofarm.lua?token=GHSAT0AAAAAABTQJQ7F3I6RHIXW7RDTXTGUYSWEQWA", true))()
 
-print("V: 1.0.1")
+print("V: 1.0.2")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -22,12 +22,26 @@ General_Tab:AddSwitch("Regen", function(Value)
 end)
 ]]
 
+local Tool
+local OriginalToolStats = {}
 local AutofarmMobs = false
 General_Tab:AddSwitch("Auto attack mobs", function(Value)
     AutofarmMobs = Value
 
-    if not Value then
+    if Value then
+
+        OriginalToolStats = {Tool.Grip.X, Tool.Grip.Y, Tool.Grip.Z}
+
+    else
+
         workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid
+
+        if Tool then
+            Tool.Grip = CFrame.new(OriginalToolStats[1], OriginalToolStats[2], OriginalToolStats[3])
+        else
+            Tool.Grip = CFrame.new(0, 0, 0)
+        end
+
     end
 end)
 
@@ -219,21 +233,29 @@ end)
 local function GetClosest()
     local Last = math.huge
     local Closest
+    local MainPart
 
     for Index, Value in next, workspace:GetChildren() do
-        local MainPart = Value:FindFirstChildWhichIsA("MeshPart") or Value:FindFirstChildWhichIsA("Part")
 
-        if Value:FindFirstChild("EnemyMain") and MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
+        if Value:FindFirstChild("EnemyMain") then
+            if Value.PrimaryPart then
+                MainPart = Value.PrimaryPart
+            else
+                MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
+            end
+
+            if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
             
-            local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
-            if Last > Dist then
-                Closest = Value
-                Last = Dist
+                local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
+                if Last > Dist then
+                    Closest = Value
+                    Last = Dist
+                end
             end
         end
     end
 
-    return Closest
+    return Closest, MainPart
 end
 
 --//Anti Afk
@@ -280,7 +302,6 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
                 task.spawn(function()
                     Self.InvokeServer(Self, unpack(Args))
                 end)
-                task.wait()
             end
         end)
     end
@@ -290,7 +311,7 @@ end)
 
 --local Animator
 RunService.Stepped:connect(function()
-    local Tool = Player.Character:FindFirstChildWhichIsA("Tool")
+    Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
     if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         
@@ -311,6 +332,7 @@ RunService.Stepped:connect(function()
         end
 
         if AutofarmMobs or FarmNonBlacklistedOre then
+            --Player.Character.HumanoidRootPart.CFrame = CFrame.fromOrientation(0, 0, 0)
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
         
         --[[
@@ -354,11 +376,10 @@ RunService.Stepped:connect(function()
         end
 
         if Tool and Tool:FindFirstChild("RemoteFunction") then
-            local Closest = GetClosest()
+            local Closest, MainPart = GetClosest()
 
             ToolName = Tool.Name
             if AutofarmMobs and Closest and (Closest:FindFirstChildWhichIsA("MeshPart") or Closest:FindFirstChildWhichIsA("Part")) then
-                local MainPart = Closest:FindFirstChildWhichIsA("MeshPart") or Closest:FindFirstChildWhichIsA("Part")
                 
                 if Tool:FindFirstChild("GunMain") then
 
@@ -378,16 +399,13 @@ RunService.Stepped:connect(function()
                     end)
 
                 else
-                    --warn("working")
+
                     workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                     Player.Character.Humanoid:ChangeState(0)
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.fromOrientation(0, 0, 0) * CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
 
                     Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(-2, 19 + math.random(1, 3), 2) --19 = 1000
-                    --Tool.GripForward = Vector3.new(0, 10, 0)
-                    --Tool.GripUp = Vector3.new(0, 0, 10)
-
                     task.spawn(function()
                         Tool.RemoteFunction:InvokeServer("hit", {
                             Tool.Damage.Value,
