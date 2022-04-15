@@ -426,9 +426,9 @@ RunService.Stepped:connect(function()
                     
                         ToolName = Tool.Name
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 2000))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
 
-                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -33.6, -1.2)
+                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(0, 18, -0.7)--+ Vector3.new(1.5, -33.6, -1.2)
 
                         --[[
                         if IsClose then
