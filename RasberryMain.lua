@@ -25,7 +25,7 @@ end)
 local Tool
 local OriginalToolStats = {}
 
---local IsClose = true
+local IsClose = true
 --local OffsetX = 0
 --local OffsetY = 0
 --local OffsetZ = 0
@@ -426,9 +426,9 @@ RunService.Stepped:connect(function()
                     
                         ToolName = Tool.Name
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 2000))
 
-                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -20.3, -1.5)
+                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -33.6, -1.2)
 
                         --[[
                         if IsClose then
@@ -445,7 +445,7 @@ RunService.Stepped:connect(function()
                         if Tool:FindFirstChild("GunMain") then
 
                             task.spawn(function()
-                                task.wait()
+                                --task.wait()
                                 Tool.RemoteFunction:InvokeServer("shoot", {
                                     MainPart.CFrame,
                                     Tool.Damage.Value
@@ -455,7 +455,7 @@ RunService.Stepped:connect(function()
                         else
 
                             task.spawn(function()
-                                task.wait()
+                                --task.wait()
                                 Tool.RemoteFunction:InvokeServer("hit", {
                                     Tool.Damage.Value,
                                     0
