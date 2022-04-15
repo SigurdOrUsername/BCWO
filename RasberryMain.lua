@@ -1,4 +1,4 @@
---loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/BCWO/main/BCWO_Autofarm.lua?token=GHSAT0AAAAAABTQJQ7F3I6RHIXW7RDTXTGUYSWEQWA", true))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain.lua", true))()
 
 print("V: 1.0.2")
 
@@ -24,6 +24,12 @@ end)
 
 local Tool
 local OriginalToolStats = {}
+
+--local IsClose = true
+--local OffsetX = 0
+--local OffsetY = 0
+--local OffsetZ = 0
+
 local AutofarmMobs = false
 General_Tab:AddSwitch("Auto attack mobs", function(Value)
     AutofarmMobs = Value
@@ -34,6 +40,14 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
 
     else
 
+        Player.Character.Humanoid.Health = 0
+
+        --[[
+        OffsetX = 0
+        OffsetY = 0
+        OffsetZ = 0
+        IsClose = true
+
         workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid
 
         if Tool then
@@ -42,8 +56,20 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
             Tool.Grip = CFrame.new(0, 0, 0)
         end
 
+        OffsetX = 0
+        OffsetY = 0
+        OffsetZ = 0
+        IsClose = true
+        ]]
     end
 end)
+
+--[[
+local AutofarmOldOrNew = false
+General_Tab:AddSwitch("Old autofarm", function(Value)
+    AutofarmOldOrNew = Value
+end)
+]]
 
 local AutofarmMobName = ""
 General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
@@ -258,6 +284,15 @@ local function GetClosest()
     return Closest, MainPart
 end
 
+local function IsTouching(Origin, Part)
+    for Index, Value in next, Origin:GetTouchingParts() do
+        if Value == Part then
+            return true
+        end
+    end
+
+    return false
+end
 
 --//Anti Afk
 
@@ -300,13 +335,12 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits and not checkcaller() then
        task.spawn(function()
             for Index = 1, HitsPerUse do
+
+                task.wait()
                 task.spawn(function()
                     Self.InvokeServer(Self, unpack(Args))
                 end)
 
-                if Args[1] == "shoot" then
-                    task.wait()
-                end
             end
         end)
     end
@@ -314,7 +348,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, unpack(Args))
 end)
 
---local Animator
+local Animator
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
@@ -337,10 +371,8 @@ RunService.Stepped:connect(function()
         end
 
         if AutofarmMobs or FarmNonBlacklistedOre then
-            --Player.Character.HumanoidRootPart.CFrame = CFrame.fromOrientation(0, 0, 0)
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-        
-        --[[
+
             if Player.Character.Humanoid:FindFirstChild("Animator") then
                 Animator = Player.Character.Humanoid:FindFirstChild("Animator")
             end
@@ -354,7 +386,6 @@ RunService.Stepped:connect(function()
             if Animator then
                 Animator.Parent = Player.Character.Humanoid
             end
-            ]]
         end
 
         if AutofarmMobs and ToolName then
@@ -380,43 +411,58 @@ RunService.Stepped:connect(function()
             end
         end
 
-        if Tool and Tool:FindFirstChild("RemoteFunction") then
-            local Closest, MainPart = GetClosest()
+        if Tool and Tool:FindFirstChild("RemoteFunction") and AutofarmMobs then
 
-            ToolName = Tool.Name
-            if AutofarmMobs and Closest and (Closest:FindFirstChildWhichIsA("MeshPart") or Closest:FindFirstChildWhichIsA("Part")) then
-                
-                if Tool:FindFirstChild("GunMain") then
+            for Index, Value in next, workspace:GetChildren() do
 
-                    if AutofarmMobs then
-                        local RndX = math.random(-100, 100)
-                        local RndY = math.random(-100, 100)
-                        local RndZ = math.random(-100, 100)
-    
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(999 + RndX, 999 + RndY, 999 + RndZ)
+                if Value:FindFirstChild("EnemyMain") then
+                    if Value.PrimaryPart then
+                        MainPart = Value.PrimaryPart
+                    else
+                        MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
                     end
+        
+                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
+                    
+                        ToolName = Tool.Name
+                        workspace.CurrentCamera.CameraSubject = Tool.Handle
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
 
-                    task.spawn(function()
-                        Tool.RemoteFunction:InvokeServer("shoot", {
-                            MainPart.CFrame,
-                            Tool.Damage.Value
-                        })
-                    end)
+                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -20.3, -1.5)
 
-                else
+                        --[[
+                        if IsClose then
 
-                    workspace.CurrentCamera.CameraSubject = Tool.Handle
+                            OffsetX = (Tool.Handle.Position.X - MainPart.Position.X)-- - MainPart.Size.X
+                            OffsetY = (Tool.Handle.Position.Y - MainPart.Position.Y)--- 2-- - MainPart.Size.Y
+                            OffsetZ = (Tool.Handle.Position.Z - MainPart.Position.Z)--- 2.5-- - MainPart.Size.Z
+                            
+                            warn(OffsetX, OffsetY, OffsetZ)
+                            IsClose = false
+                        end
+                        ]]
+                        
+                        if Tool:FindFirstChild("GunMain") then
 
-                    Player.Character.Humanoid:ChangeState(0)
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
+                            task.spawn(function()
+                                task.wait()
+                                Tool.RemoteFunction:InvokeServer("shoot", {
+                                    MainPart.CFrame,
+                                    Tool.Damage.Value
+                                })
+                            end)
 
-                    Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new(-2, 19 + math.random(1, 3), 2) --19 = 1000
-                    task.spawn(function()
-                        Tool.RemoteFunction:InvokeServer("hit", {
-                            Tool.Damage.Value,
-                            0
-                        })
-                    end)
+                        else
+
+                            task.spawn(function()
+                                task.wait()
+                                Tool.RemoteFunction:InvokeServer("hit", {
+                                    Tool.Damage.Value,
+                                    0
+                                })
+                            end)
+                        end
+                    end
                 end
             end
         end
