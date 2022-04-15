@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain.lua", true))()
 
-print("V: 1.0.2")
+print("V: 1.0.3")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -384,7 +384,7 @@ RunService.Stepped:connect(function()
         else
             
             if Animator then
-                --Animator.Parent = Player.Character.Humanoid
+                Animator.Parent = Player.Character.Humanoid
             end
         end
 
@@ -428,7 +428,12 @@ RunService.Stepped:connect(function()
                         task.spawn(function()
                             workspace.CurrentCamera.CameraSubject = Tool.Handle
                             Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 2000))
-                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -33.5, -1.5)--+ Vector3.new(1.5, -18, -1)
+
+                            local ToolPosition = (Player.Character.HumanoidRootPart.Position - MainPart.Position)
+                            --Tool.Grip = CFrame.lookAt( ToolPosition, (Player.Character.HumanoidRootPart.Position - MainPart.Position) ) --CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -33.5, -1.5)--+ Vector3.new(1.5, -18, -1)
+                            Tool.Grip = CFrame.new(ToolPosition) --[[* CFrame.Angles(0, 0, math.rad(90))]] + Vector3.new(1.5, -33.5, -1.5)
+                            --Tool.GripUp = Vector3.new(0, 1, 0)
+                            --Tool.GripForward = Vector3.new(1, 0, 0)
                         end)
                         --[[
                         if IsClose then
