@@ -425,11 +425,11 @@ RunService.Stepped:connect(function()
                     if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
                     
                         ToolName = Tool.Name
-                        workspace.CurrentCamera.CameraSubject = Tool.Handle
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
-
-                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -18, -1)--+ Vector3.new(1.5, -33.6, -1.2)
-
+                        task.spawn(function()
+                            workspace.CurrentCamera.CameraSubject = Tool.Handle
+                            Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 2000))
+                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -33.5, -1.5)--+ Vector3.new(1.5, -18, -1)
+                        end)
                         --[[
                         if IsClose then
 
