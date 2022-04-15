@@ -384,7 +384,7 @@ RunService.Stepped:connect(function()
         else
             
             if Animator then
-                Animator.Parent = Player.Character.Humanoid
+                --Animator.Parent = Player.Character.Humanoid
             end
         end
 
@@ -428,7 +428,7 @@ RunService.Stepped:connect(function()
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, 1000))
 
-                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(0, 18, -0.7)--+ Vector3.new(1.5, -33.6, -1.2)
+                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) + Vector3.new(1.5, -18, -1)--+ Vector3.new(1.5, -33.6, -1.2)
 
                         --[[
                         if IsClose then
