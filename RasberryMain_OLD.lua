@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.1")
+print("V_OLD: 1.0.3")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -434,4 +434,4 @@ RunService.Stepped:connect(function()
             end
         end
     end
-end)|
+end)
