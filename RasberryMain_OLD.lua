@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain.lua", true))()
 
-print("V_OLD: 1.0.0")
+print("V_OLD: 1.0.1")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -52,8 +52,13 @@ Character_Tab:AddSwitch("No cooldown for swinging / shooting", function(Value)
 end)
 
 local MultipleHits = false
-Character_Tab:AddSwitch("Multiple hits [Lag warning]", function(Value)
+Character_Tab:AddSwitch("Multiple hits", function(Value)
     MultipleHits = Value
+end)
+
+local InstantHit = false
+Character_Tab:AddSwitch("No delay when using multiple hits [Lag warning]", function(Value)
+    InstantHit = Value
 end)
 
 Character_Tab:AddLabel("This auto-enables when autofarming")
@@ -293,7 +298,10 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
        task.spawn(function()
             for Index = 1, HitsPerUse do
 
-                task.wait()
+                if not InstantHit then
+                    task.wait()
+                end
+                
                 task.spawn(function()
                     Self.InvokeServer(Self, unpack(Args))
                 end)
@@ -363,7 +371,7 @@ RunService.Stepped:connect(function()
 
                     warn(MainPart)
         
-                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 --[[and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName))]] then
+                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName) then
                     
                         ToolName = Tool.Name
 
