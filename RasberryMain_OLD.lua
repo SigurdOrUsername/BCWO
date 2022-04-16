@@ -203,7 +203,9 @@ task.spawn(function()
     end
 end)
 
-local StatisticsData = {}
+local StatisticsData_Bosses = {}
+local StatisticsData_Drops = {}
+
 local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Spawns")
 local Statistics_Tab_Drops = Statistics_Tab:AddFolder("Drops")
 local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
@@ -211,15 +213,31 @@ local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 workspace.ChildRemoved:Connect(function(Child)
     if Child:FindFirstChild("Boss") and Child:FindFirstChild("Humanoid") and Child.Humanoid:FindFirstChild("creator") and Child.Humanoid.creator.Value == Player then
 
-        if not StatisticsData[Child.Name] then
-            StatisticsData[Child.Name] = {Statistics_Tab_Bosses:AddLabel(Child.Name .. ": 1"), 1}
+        if not StatisticsData_Bosses[Child.Name] then
+            StatisticsData_Bosses[Child.Name] = {Statistics_Tab_Bosses:AddLabel(Child.Name .. ": 1"), 1}
         else
-            local Amount = StatisticsData[Child.Name][2]
+            local Amount = StatisticsData_Bosses[Child.Name][2]
 
-            StatisticsData[Child.Name][2] = Amount + 1
-            StatisticsData[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
+            StatisticsData_Bosses[Child.Name][2] = Amount + 1
+            StatisticsData_Bosses[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
         end
 
+    end
+end)
+
+Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
+    local Matched = string.match(Info.msg, "got%s(%d%s%a+%s%a+)")
+
+    local Name = string.match(Matched, "%s(%a+%s%a+)")
+    local Number = string.match(Matched, "%d")
+
+    if not StatisticsData_Drops[Name] then
+        StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
+    else
+        local Amount = StatisticsData_Drops[Name][2]
+
+        StatisticsData_Drops[Name][2] = Amount + 1
+        StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
     end
 end)
 
@@ -416,4 +434,4 @@ RunService.Stepped:connect(function()
             end
         end
     end
-end)
+end)|
