@@ -359,13 +359,11 @@ RunService.Stepped:connect(function()
             for Index, Value in next, workspace:GetChildren() do
 
                 if Value:FindFirstChild("EnemyMain") then
-                    if Value.PrimaryPart then
-                        MainPart = Value.PrimaryPart
-                    else
-                        MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-                    end
+                    MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
+
+                    warn(MainPart)
         
-                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
+                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 --[[and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName))]] then
                     
                         ToolName = Tool.Name
 
@@ -376,8 +374,8 @@ RunService.Stepped:connect(function()
                             end
                         end
 
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, Length * 1.2)--CFrame.lookAt((MainPart.CFrame * CFrame.new(0, 0, Length * 1.2)).Position, (Player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, 10)).Position)
-                        Tool.Grip = CFrame.new(0, 0, Length * 1.1)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, Length * 1.2)
+                        Tool.Grip = CFrame.new(Length / 2, 0, Length * 1.1)
 
                         if Tool:FindFirstChild("GunMain") then
 
@@ -404,6 +402,7 @@ RunService.Stepped:connect(function()
                             end)
                         end
 
+                        task.wait()
                     end
                 end
             end
