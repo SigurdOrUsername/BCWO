@@ -1,4 +1,4 @@
---loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain.lua", true))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
 print("V_OLD: 1.0.1")
 
@@ -301,7 +301,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
                 if not InstantHit then
                     task.wait()
                 end
-                
+
                 task.spawn(function()
                     Self.InvokeServer(Self, unpack(Args))
                 end)
@@ -371,7 +371,7 @@ RunService.Stepped:connect(function()
 
                     warn(MainPart)
         
-                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName) then
+                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
                     
                         ToolName = Tool.Name
 
