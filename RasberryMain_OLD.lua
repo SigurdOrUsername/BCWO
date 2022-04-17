@@ -403,7 +403,7 @@ RunService.Stepped:connect(function()
                         end
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                        Tool.Grip = CFrame.new(ToolLength * 0.30, 0, (ToolLength * 1.1) - (MainPart.Size.Z / 2))
+                        Tool.Grip = CFrame.new(MainPart.Size.X * 0.8, 0, ToolLength * 1.1 - MainPart.Size.Z / 2)
 
                         if Tool:FindFirstChild("GunMain") then
 
@@ -413,8 +413,6 @@ RunService.Stepped:connect(function()
                                     MainPart.CFrame,
                                     Tool.Damage.Value
                                 })
-
-                                --Tool.Grip = CFrame.new(0, 0, 0)
                             end)
 
                         else
@@ -425,8 +423,6 @@ RunService.Stepped:connect(function()
                                     Tool.Damage.Value,
                                     0
                                 })
-
-                                --Tool.Grip = CFrame.new(0, 0, 0)
                             end)
                         end
 
