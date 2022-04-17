@@ -37,7 +37,7 @@ General_Tab:AddSlider("Distance from mob", function(Value)
     Distance = Value
 end, {
     ["min"] = 5,
-    ["max"] = 30
+    ["max"] = 25
 })
 
 local AutofarmMobName = ""
