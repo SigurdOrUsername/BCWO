@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.3")
+print("V_OLD: 1.0.4")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -32,12 +32,13 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
     end
 end)
 
---[[
-local AutofarmOldOrNew = false
-General_Tab:AddSwitch("Old autofarm", function(Value)
-    AutofarmOldOrNew = Value
-end)
-]]
+local Distance = 5
+General_Tab:AddSlider("Distance from mob", function(Value)
+    Distance = Value
+end, {
+    ["min"] = 5,
+    ["max"] = 30
+})
 
 local AutofarmMobName = ""
 General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
@@ -231,13 +232,15 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     local Name = string.match(Matched, "%s(%a+%s%a+)")
     local Number = string.match(Matched, "%d")
 
-    if not StatisticsData_Drops[Name] then
-        StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
-    else
-        local Amount = StatisticsData_Drops[Name][2]
+    for Index = 1, Number do
+        if not StatisticsData_Drops[Name] then
+            StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
+        else
+            local Amount = StatisticsData_Drops[Name][2]
 
-        StatisticsData_Drops[Name][2] = Amount + 1
-        StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+            StatisticsData_Drops[Name][2] = Amount + 1
+            StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+        end
     end
 end)
 
@@ -385,7 +388,7 @@ RunService.Stepped:connect(function()
             for Index, Value in next, workspace:GetChildren() do
 
                 if Value:FindFirstChild("EnemyMain") then
-                    MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
+                    local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
 
                     warn(MainPart)
         
@@ -393,15 +396,15 @@ RunService.Stepped:connect(function()
                     
                         ToolName = Tool.Name
 
-                        local Length = 0
+                        local ToolLength = 0
                         for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                            if Value > Length then
-                                Length = Value
+                            if Value > ToolLength then
+                                ToolLength = Value
                             end
                         end
 
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, Length * 1.2)
-                        Tool.Grip = CFrame.new(Length / 2, 0, Length * 1.1)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, Distance * 1.2)
+                        Tool.Grip = CFrame.new(ToolLength / 2, 0, Distance * 1.1)
 
                         if Tool:FindFirstChild("GunMain") then
 
