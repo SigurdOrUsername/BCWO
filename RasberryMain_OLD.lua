@@ -232,7 +232,7 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     local Number = string.match(Info.msg, "%d")
     local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!")
     local Name = Matched:sub(3, #Matched - 1)
-    
+
     for Index = 1, Number do
         if not StatisticsData_Drops[Name] then
             StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
@@ -393,7 +393,7 @@ RunService.Stepped:connect(function()
 
                     warn(MainPart)
         
-                    if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
+                    if Tool and MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
                     
                         ToolName = Tool.Name
 
@@ -405,7 +405,7 @@ RunService.Stepped:connect(function()
                         end
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                        Tool.Grip = CFrame.new(ToolLength / 2, 0, ToolLength * 1.1)
+                        Tool.Grip = CFrame.new(ToolLength * 0.40, 0, ToolLength * 1.15)
 
                         if Tool:FindFirstChild("GunMain") then
 
