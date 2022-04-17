@@ -415,10 +415,8 @@ RunService.Stepped:connect(function()
 
                         else
 
-                            local OffsetX = Tool.Handle.Size.X * 0.8 - MainPart.Size.X
-                            local OffsetZ = ToolLength * 1.1 - MainPart.Size.Z / 2
-                            Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                            Tool.Grip = CFrame.new(OffsetX, 0, OffsetZ)
+                            Player.Character.HumanoidRootPart.CFrame = CFrame.lookAt(MainPart.Position + Vector3.new(0, 0, ToolLength * 1.2), MainPart.Position)
+                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) - Vector3.new( Player.Character.HumanoidRootPart.Position.X - Player.Character["Right Arm"].Position.X, 0, 0)
 
                             task.spawn(function()
                                 Tool.RemoteFunction:InvokeServer("hit", {
