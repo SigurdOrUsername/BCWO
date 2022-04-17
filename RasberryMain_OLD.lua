@@ -419,7 +419,7 @@ RunService.Stepped:connect(function()
                             Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength * 1.2))
 
                             local HumPos = Player.Character.HumanoidRootPart.Position
-                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - Player.Character["Right Arm"].Position.X, 0, MainPart.Size.Z * 2)
+                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - Player.Character["Right Arm"].Position.X, 0, MainPart.Size.Z * 1.5)
 
                             task.spawn(function()
                                 task.wait()
