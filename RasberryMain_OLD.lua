@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.4")
+print("V_OLD: 1.0.5")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -390,8 +390,6 @@ RunService.Stepped:connect(function()
 
                 if Value:FindFirstChild("EnemyMain") then
                     local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-
-                    warn(MainPart)
         
                     if Tool and MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
                     
@@ -405,7 +403,7 @@ RunService.Stepped:connect(function()
                         end
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                        Tool.Grip = CFrame.new(ToolLength * 0.40, 0, ToolLength - (MainPart.Size.Z / 2))
+                        Tool.Grip = CFrame.new(ToolLength * 0.30, 0, (ToolLength * 1.1) - (MainPart.Size.Z / 2))
 
                         if Tool:FindFirstChild("GunMain") then
 
