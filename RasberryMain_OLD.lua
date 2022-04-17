@@ -229,11 +229,10 @@ workspace.ChildRemoved:Connect(function(Child)
 end)
 
 Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
-    local Matched = string.match(Info.msg, "got%s(%d%s%a+%s%a+)")
-
-    local Name = string.match(Matched, "%s(%a+%s%a+)")
-    local Number = string.match(Matched, "%d")
-
+    local Number = string.match(Info.msg, "%d")
+    local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!")
+    local Name = Matched:sub(3, #Matched - 1)
+    
     for Index = 1, Number do
         if not StatisticsData_Drops[Name] then
             StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
