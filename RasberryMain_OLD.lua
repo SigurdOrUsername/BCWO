@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.5")
+print("V_OLD: 1.0.6")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -418,7 +418,7 @@ RunService.Stepped:connect(function()
                             local OffsetX = Tool.Handle.Size.X * 0.8 - MainPart.Size.X
                             local OffsetZ = ToolLength * 1.1 - MainPart.Size.Z / 2
                             Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                            Tool.Grip = CFrame.new( OffsetX, 0, OffsetZ)
+                            Tool.Grip = CFrame.new(OffsetX, 0, OffsetZ)
 
                             task.spawn(function()
                                 Tool.RemoteFunction:InvokeServer("hit", {
