@@ -230,7 +230,7 @@ end)
 
 Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     local Number = string.match(Info.msg, "%d")
-    local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!")
+    local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
     local Name = Matched:sub(3, #Matched - 1)
 
     for Index = 1, Number do
@@ -405,7 +405,7 @@ RunService.Stepped:connect(function()
                         end
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
-                        Tool.Grip = CFrame.new(ToolLength * 0.40, 0, ToolLength * 1.15)
+                        Tool.Grip = CFrame.new(ToolLength * 0.40, 0, ToolLength - (MainPart.Size.Z / 2))
 
                         if Tool:FindFirstChild("GunMain") then
 
