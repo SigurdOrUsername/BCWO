@@ -32,6 +32,7 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
     end
 end)
 
+--[[
 local Distance = 5
 General_Tab:AddSlider("Distance from mob", function(Value)
     Distance = Value
@@ -39,6 +40,7 @@ end, {
     ["min"] = 5,
     ["max"] = 25
 })
+]]
 
 local AutofarmMobName = ""
 General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
@@ -403,8 +405,8 @@ RunService.Stepped:connect(function()
                             end
                         end
 
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, Distance * 1.2)
-                        Tool.Grip = CFrame.new(ToolLength / 2, 0, Distance * 1.1)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 0, ToolLength * 1.2)
+                        Tool.Grip = CFrame.new(ToolLength / 2, 0, ToolLength * 1.1)
 
                         if Tool:FindFirstChild("GunMain") then
 
