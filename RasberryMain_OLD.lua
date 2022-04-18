@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.6")
+print("V_OLD: 1.0.7")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -13,6 +13,7 @@ local Window = library:AddWindow("Lol")
 local General_Tab = Window:AddTab("General")
 local Character_Tab = Window:AddTab("Char cheats")
 local Statistics_Tab = Window:AddTab("Stats")
+local Misc_Tab = Window:AddTab("Misc")
 
 --// GENERAL TAB
 
@@ -87,6 +88,13 @@ end)
 local NoClip = false
 CharFolder:AddSwitch("No-clip", function(Value)
     NoClip = Value
+end)
+
+--// MISC OPTIONS
+
+local CollectEggs = false
+Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
+    CollectEggs = true
 end)
 
 --// ESP / MINES SPESIFIC OPTIONS
@@ -208,6 +216,7 @@ end)
 
 local StatisticsData_Bosses = {}
 local StatisticsData_Drops = {}
+local StatisticsData_Biomes = {}
 
 local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Spawns")
 local Statistics_Tab_Drops = Statistics_Tab:AddFolder("Drops")
@@ -316,8 +325,32 @@ local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
 
+    --[[
+    if getnamecallmethod() == "SetCore" then
+        --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
+        if type(Args[2]) ~= "Color3" then
+            --if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+                
+                local Name = Args[2].Text
+                if not StatisticsData_Biomes[Name] then
+                    StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes.AddLabel(nil, Name .. ": 1"), 1}
+                    --StatisticsData_Biomes[Name].TextColor3 = Args[2].Color
+                else
+                    local Amount = StatisticsData_Biomes[Name][2]
+        
+                    StatisticsData_Biomes[Name][2] = Amount + 1
+                    StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                end
+
+            --end
+        end
+
+        table.foreach(Args[2], print)
+    end
+    ]]
+
     if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits and not checkcaller() then
-       task.spawn(function()
+        task.spawn(function()
             for Index = 1, HitsPerUse do
 
                 if not InstantHit then
@@ -332,15 +365,26 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
         end)
     end
 
-    return OldNamecall(Self, unpack(Args))
+    return OldNamecall(Self, ...)
 end)
 
 local ToolName
+local OffsetIndex = -2
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
     if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         
+        --Collect eggs
+
+        if CollectEggs then
+            for Index, Value in next, workspace:GetChildren() do
+                if Value.Name == "Egg" then
+                    Player.Character.HumanoidRootPart.CFrame = Value.CFrame
+                end
+            end
+        end
+
         --Noclip
 
         for Index, Value in next, Player.Character:GetChildren() do
@@ -419,7 +463,12 @@ RunService.Stepped:connect(function()
                             Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength))
 
                             local HumPos = Player.Character.HumanoidRootPart.Position
-                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + math.random(-2, 2)), 0, MainPart.Size.Z * 1.5)
+                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, MainPart.Size.Z * 1.5)
+
+                            OffsetIndex = OffsetIndex + 1
+                            if OffsetIndex == 3 then
+                                OffsetIndex = -2
+                            end
 
                             task.spawn(function()
                                 task.wait()
@@ -430,7 +479,7 @@ RunService.Stepped:connect(function()
                             end)
                         end
 
-                        task.wait()
+                        --task.wait()
                     end
                 end
             end
