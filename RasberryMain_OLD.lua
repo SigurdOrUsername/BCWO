@@ -322,7 +322,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     if getnamecallmethod() == "SetCore" then
         --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
         if #Args == 2 then
-            
+
             local TempColor
             if type(Args[2].Color) == "Color3" then
                 TempColor = Args[2]
@@ -332,7 +332,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
 
             print(TempColor, TempColor ~= Color3.new(1, 1, 0))
             if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
-                
+
                 Name = Args[2].Text
                 Color = TempColor
                 AddNewLabel = true
