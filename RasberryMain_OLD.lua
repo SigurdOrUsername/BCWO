@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.7")
+print("V_OLD: 1.0.8")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -321,33 +321,45 @@ OldWait = hookfunction(getrenv().wait, function(Args)
     return OldWait(Args)
 end)
 
+local Name
+local Color
+local AddNewLabel = false
+
+task.spawn(function()
+    while wait() do
+        if AddNewLabel then
+
+            if not StatisticsData_Biomes[Name] then
+                StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes:AddLabel(Name .. ": 1"), 1}
+                StatisticsData_Biomes[Name][1].TextColor3 = Args[2].Color
+            else
+                local Amount = StatisticsData_Biomes[Name][2]
+    
+                StatisticsData_Biomes[Name][2] = Amount + 1
+                StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+            end
+
+            AddNewLabel = false
+        end
+    end
+end)
+
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
-
-    --[[
     if getnamecallmethod() == "SetCore" then
         --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-        if type(Args[2]) ~= "Color3" then
-            --if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+        if #Args == 2 then
+            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
                 
-                local Name = Args[2].Text
-                if not StatisticsData_Biomes[Name] then
-                    StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes.AddLabel(nil, Name .. ": 1"), 1}
-                    --StatisticsData_Biomes[Name].TextColor3 = Args[2].Color
-                else
-                    local Amount = StatisticsData_Biomes[Name][2]
-        
-                    StatisticsData_Biomes[Name][2] = Amount + 1
-                    StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
-                end
+                Name = Args[2].Text
+                Color = Args[2].Color
+                AddNewLabel = true
 
-            --end
+            end
+            --table.foreach(Args[2], print)
         end
-
-        table.foreach(Args[2], print)
     end
-    ]]
 
     if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits and not checkcaller() then
         task.spawn(function()
