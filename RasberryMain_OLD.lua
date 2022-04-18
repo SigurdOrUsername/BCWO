@@ -94,7 +94,7 @@ end)
 
 local CollectEggs = false
 Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
-    CollectEggs = true
+    CollectEggs = Value
 end)
 
 --// ESP / MINES SPESIFIC OPTIONS
