@@ -260,34 +260,6 @@ workspace:FindFirstChildWhichIsA("BoolValue").Name.Changed:Connect(function(Chan
 end)
 ]]
 
-local function GetClosest()
-    local Last = math.huge
-    local Closest
-    local MainPart
-
-    for Index, Value in next, workspace:GetChildren() do
-
-        if Value:FindFirstChild("EnemyMain") then
-            if Value.PrimaryPart then
-                MainPart = Value.PrimaryPart
-            else
-                MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-            end
-
-            if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
-            
-                local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
-                if Last > Dist then
-                    Closest = Value
-                    Last = Dist
-                end
-            end
-        end
-    end
-
-    return Closest, MainPart
-end
-
 --//Anti Afk
 
 for Index, Value in next, getconnections(Player.Idled) do
@@ -331,7 +303,7 @@ task.spawn(function()
 
             if not StatisticsData_Biomes[Name] then
                 StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes:AddLabel(Name .. ": 1"), 1}
-                StatisticsData_Biomes[Name][1].TextColor3 = Args[2].Color
+                StatisticsData_Biomes[Name][1].TextColor3 = Color
             else
                 local Amount = StatisticsData_Biomes[Name][2]
     
@@ -350,10 +322,19 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     if getnamecallmethod() == "SetCore" then
         --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
         if #Args == 2 then
-            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+            
+            local TempColor
+            if type(Args[2].Color) == "Color3" then
+                TempColor = Args[2]
+            else
+                TempColor = Args[2].Color
+            end
+
+            print(TempColor, TempColor ~= Color3.new(1, 1, 0))
+            if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
                 
                 Name = Args[2].Text
-                Color = Args[2].Color
+                Color = TempColor
                 AddNewLabel = true
 
             end
@@ -475,7 +456,7 @@ RunService.Stepped:connect(function()
                             Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength))
 
                             local HumPos = Player.Character.HumanoidRootPart.Position
-                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, MainPart.Size.Z * 1.5)
+                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, 2--[[MainPart.Size.Z * 1.5]])
 
                             OffsetIndex = OffsetIndex + 1
                             if OffsetIndex == 3 then
