@@ -361,6 +361,32 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, ...)
 end)
 
+local function GetClosest()
+    local Last = math.huge
+    local Closest
+
+    for Index, Value in next, workspace:GetChildren() do
+
+        local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
+
+        if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 then
+            if Value:FindFirstChild("Boss") then
+                return Value
+            end
+
+            if Value:FindFirstChild("EnemyMain") then
+                local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
+                if Last > Dist then
+                    Closest = MainPart
+                    Last = Dist
+                end
+            end
+        end
+    end
+
+    return Closest
+end
+
 local ToolName
 local OffsetIndex = -2
 RunService.Stepped:connect(function()
@@ -423,59 +449,52 @@ RunService.Stepped:connect(function()
 
         if Tool and Tool:FindFirstChild("RemoteFunction") and AutofarmMobs then
 
-            for Index, Value in next, workspace:GetChildren() do
+            local MainPart = GetClosest()
 
-                if Value:FindFirstChild("EnemyMain") then
-                    local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-        
-                    if Tool and MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value.Humanoid.Health > 0 and (AutofarmMobName == "all" or Value.Name:lower():find(AutofarmMobName)) then
-                    
-                        ToolName = Tool.Name
-
-                        local ToolLength = 0
-                        for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                            if Value > ToolLength then
-                                ToolLength = Value
-                            end
-                        end
-
-                        if Tool:FindFirstChild("GunMain") then
-
-                            Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
-
-                            task.spawn(function()
-                                task.wait()
-                                Tool.RemoteFunction:InvokeServer("shoot", {
-                                    MainPart.CFrame,
-                                    Tool.Damage.Value
-                                })
-                            end)
-
-                        else
-
-                            Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength))
-
-                            local HumPos = Player.Character.HumanoidRootPart.Position
-                            Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, 2--[[MainPart.Size.Z * 1.5]])
-
-                            OffsetIndex = OffsetIndex + 0.5
-                            if OffsetIndex == 3 then
-                                OffsetIndex = -2
-                            end
-
-                            task.spawn(function()
-                                task.wait()
-                                Tool.RemoteFunction:InvokeServer("hit", {
-                                    Tool.Damage.Value,
-                                    0
-                                })
-                            end)
-                        end
-
-                        --task.wait()
+            if MainPart then
+                ToolName = Tool.Name
+                
+                local ToolLength = 0
+                for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
+                    if Value > ToolLength then
+                        ToolLength = Value
                     end
                 end
+
+                if Tool:FindFirstChild("GunMain") then
+
+                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
+
+                    task.spawn(function()
+                        task.wait()
+                        Tool.RemoteFunction:InvokeServer("shoot", {
+                            MainPart.CFrame,
+                            Tool.Damage.Value
+                        })
+                    end)
+
+                else
+
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength))
+
+                    local HumPos = Player.Character.HumanoidRootPart.Position
+                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, 2--[[MainPart.Size.Z * 1.5]])
+
+                    OffsetIndex = OffsetIndex + 0.5
+                    if OffsetIndex == 3 then
+                        OffsetIndex = -2
+                    end
+
+                    task.spawn(function()
+                        task.wait()
+                        Tool.RemoteFunction:InvokeServer("hit", {
+                            Tool.Damage.Value,
+                            0
+                        })
+                    end)
+                end
             end
+
         end
     end
 end)
