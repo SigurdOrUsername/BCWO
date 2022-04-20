@@ -377,7 +377,7 @@ local function GetClosest()
         local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
         if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
             if Value:FindFirstChild("Boss") then
-                return Value
+                return MainPart
             end
 
             if Value:FindFirstChild("EnemyMain") then
