@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.8")
+print("V_OLD: 1.0.9")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -95,6 +95,13 @@ end)
 local CollectEggs = false
 Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
+end)
+
+local EggWait = 1
+Misc_Tab:AddTextBox("Collecting delay", function(Value)
+    if tonumber(Value) then
+        EggWait = tonumber(Value)
+    end
 end)
 
 --// ESP / MINES SPESIFIC OPTIONS
@@ -387,6 +394,7 @@ local function GetClosest()
 end
 
 local ToolName
+local EggDebounce = false
 local OffsetIndex = -2
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
@@ -395,12 +403,21 @@ RunService.Stepped:connect(function()
         
         --Collect eggs
 
-        if CollectEggs then
-            for Index, Value in next, workspace:GetChildren() do
-                if Value.Name == "Egg" then
-                    Player.Character.HumanoidRootPart.CFrame = Value.CFrame
+        if not EggDebounce then
+            task.spawn(function()
+                if CollectEggs then
+
+                    EggDebounce = true
+                    for Index, Value in next, workspace:GetChildren() do
+                        if Value.Name == "Egg" then
+                            Player.Character.HumanoidRootPart.CFrame = Value.CFrame
+                            task.wait(EggWait)
+                        end
+                    end
+
+                    EggDebounce = false
                 end
-            end
+            end)
         end
 
         --Noclip
