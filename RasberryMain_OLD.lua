@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.9")
+print("V_OLD: 1.1.0")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -33,15 +33,13 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
     end
 end)
 
---[[
 local Distance = 5
 General_Tab:AddSlider("Distance from mob", function(Value)
     Distance = Value
 end, {
     ["min"] = 5,
-    ["max"] = 25
+    ["max"] = 100
 })
-]]
 
 local AutofarmMobName = ""
 General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
@@ -270,7 +268,13 @@ end)
 --//Anti Afk
 
 for Index, Value in next, getconnections(Player.Idled) do
-    Value:Disable()
+    if Value["Disable"] then
+        Value["Disable"](Value)
+    end
+
+    if Value["Disconnect"] then
+        Value["Disconnect"](Value)
+    end
 end
 
 for Index, Value in next, Player.Character:GetChildren() do
@@ -491,10 +495,10 @@ RunService.Stepped:connect(function()
 
                 else
 
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength))
+                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
 
                     local HumPos = Player.Character.HumanoidRootPart.Position
-                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), 0, 2--[[MainPart.Size.Z * 1.5]])
+                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) * CFrame.new(-(MainPart.Position.X - Player.Character["Right Arm"].Position.X), 0, 0)
 
                     OffsetIndex = OffsetIndex + 0.5
                     if OffsetIndex == 3 then
