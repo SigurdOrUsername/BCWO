@@ -95,7 +95,7 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
 end)
 
-local EggWait = 1
+local EggWait = 2
 Misc_Tab:AddTextBox("Collecting delay", function(Value)
     if tonumber(Value) then
         EggWait = tonumber(Value)
@@ -415,8 +415,10 @@ RunService.Stepped:connect(function()
                     EggDebounce = true
                     for Index, Value in next, workspace:GetChildren() do
                         if Value.Name == "Egg" then
-                            Player.Character.HumanoidRootPart.CFrame = Value.CFrame
-                            task.wait(EggWait)
+                            task.wait(EggWait + math.random())
+                            firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
+                            firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
+                            --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
                         end
                     end
 
@@ -487,7 +489,7 @@ RunService.Stepped:connect(function()
                     Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
                     task.spawn(function()
-                        task.wait(0.1)
+                        task.wait()
                         Tool.RemoteFunction:InvokeServer("shoot", {
                             MainPart.CFrame,
                             Tool.Damage.Value
@@ -504,7 +506,7 @@ RunService.Stepped:connect(function()
                     Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
 
                     task.spawn(function()
-                        task.wait(0.1)
+                        task.wait()
                         Tool.RemoteFunction:InvokeServer("hit", {
                             Tool.Damage.Value,
                             0
