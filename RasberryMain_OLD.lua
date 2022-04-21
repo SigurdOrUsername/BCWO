@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.1.1")
+print("V_OLD: 1.12")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -334,20 +334,13 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     if not checkcaller() then
         if getnamecallmethod() == "SetCore" then
             --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-            if #Args == 2 then
+            if #Args == 2 and #Args[2] == 2 then
 
-                local TempColor
-                if type(Args[2].Color) == "Color3" then
-                    TempColor = Args[2]
-                else
-                    TempColor = Args[2].Color
-                end
-
-                print(TempColor, TempColor ~= Color3.new(1, 1, 0))
-                if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+                print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
+                if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
                     Name = Args[2].Text
-                    Color = TempColor
+                    Color = Args[2].Color
                     AddNewLabel = true
 
                 end
@@ -406,7 +399,7 @@ local function GetClosestOre()
     for Index, Value in next, workspace.Map.Ores:GetChildren() do
         local IsWhitelistedOre = not BlacklistData[Value.Name:lower()]
         
-        if Value:FindFirstChild("Properties") and Value.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
+        if Value:FindFirstChild("Properties") and IsWhitelistedOre then
 
             local Dist = (Player.Character.HumanoidRootPart.Position - Value.Mineral.Position).Magnitude
             if Last > Dist then
@@ -481,7 +474,7 @@ RunService.Stepped:connect(function()
 
                 local ClosestOre = GetClosestOre()
                 
-                if ClosestOre then
+                if ClosestOre and ClosestOre.Properties.Hitpoint.Value > 0 then
                     Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
 
                     Tool.RemoteFunction:InvokeServer("hit", {
