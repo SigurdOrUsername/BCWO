@@ -243,29 +243,25 @@ workspace.ChildRemoved:Connect(function(Child)
 end)
 
 Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
-    local Number = string.match(Info.msg, "%d")
-    local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
-    local Name = Matched:sub(3, #Matched - 1)
+    if Info then
+        local Number = string.match(Info.msg, "%d")
+        local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
+        local Name = Matched:sub(3, #Matched - 1)
 
-    if Number and Matched and Name then
-        for Index = 1, Number do
-            if not StatisticsData_Drops[Name] then
-                StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
-            else
-                local Amount = StatisticsData_Drops[Name][2]
+        if Number and Matched and Name then
+            for Index = 1, Number do
+                if not StatisticsData_Drops[Name] then
+                    StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
+                else
+                    local Amount = StatisticsData_Drops[Name][2]
 
-                StatisticsData_Drops[Name][2] = Amount + 1
-                StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                    StatisticsData_Drops[Name][2] = Amount + 1
+                    StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                end
             end
         end
     end
 end)
-
---[[
-workspace:FindFirstChildWhichIsA("BoolValue").Name.Changed:Connect(function(Change)
-    print(Change)
-end)
-]]
 
 --//Anti Afk
 
@@ -376,7 +372,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, ...)
 end)
 
-local function GetClosest()
+local function GetClosestMob()
     local Last = math.huge
     local Closest
 
@@ -396,6 +392,28 @@ local function GetClosest()
                 end
             end
         end
+    end
+
+    return Closest
+end
+
+local function GetClosestOre()
+    local Last = math.huge
+    local Closest
+
+    for Index, Value in next, workspace.Map.Ores:GetChildren() do
+        local IsWhitelistedOre = not BlacklistData[Value.Name:lower()]
+        
+        if Value:FindFirstChild("Properties") and Value.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
+
+            local Dist = (Player.Character.HumanoidRootPart.Position - Value.Mineral.Position).Magnitude
+            if Last > Dist then
+                Closest = Value
+                Last = Dist
+            end
+        end
+
+        ESP[Value.Name] = IsWhitelistedOre
     end
 
     return Closest
@@ -446,7 +464,7 @@ RunService.Stepped:connect(function()
         end
 
         if AutofarmMobs or FarmNonBlacklistedOre then
-            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.01, 0)
         end
 
         if AutofarmMobs and ToolName then
@@ -455,65 +473,66 @@ RunService.Stepped:connect(function()
             end
         end
 
-        if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
-            for Index, Value in next, workspace.Map.Ores:GetChildren() do
-                local IsWhitelistedOre = not BlacklistData[Value.Name:lower()]
+        if Tool and Tool:FindFirstChild("RemoteFunction") then
+
+            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") and FarmNonBlacklistedOre then
+
+                local ClosestOre = GetClosestOre()
                 
-                if FarmNonBlacklistedOre and Tool and Tool:FindFirstChild("RemoteFunction") and Value:FindFirstChild("Properties") and Value.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
-                    Player.Character.HumanoidRootPart.CFrame = Value.Mineral.CFrame + Vector3.new(0, - (Value.Mineral.Size.Y * 1.5), 0)
+                if ClosestOre then
+                    Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
+
                     Tool.RemoteFunction:InvokeServer("hit", {
-                        Value.Properties.Hitpoint,
-                        Value.Properties.Toughness,
-                        Value.Properties.Owner
+                        ClosestOre.Properties:FindFirstChild("Hitpoint"),
+                        ClosestOre.Properties:FindFirstChild("Toughness"),
+                        ClosestOre.Properties:FindFirstChild("Owner")
                     })
                 end
-
-                ESP[Value.Name] = IsWhitelistedOre
             end
-        end
 
-        if Tool and Tool:FindFirstChild("RemoteFunction") and AutofarmMobs then
+            if AutofarmMobs then
 
-            local MainPart = GetClosest()
+                local MainPart = GetClosestMob()
 
-            if MainPart then
-                ToolName = Tool.Name
-                
-                local ToolLength = 0
-                for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                    if Value > ToolLength then
-                        ToolLength = Value
+                if MainPart then
+                    ToolName = Tool.Name
+                    
+                    local ToolLength = 0
+                    for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
+                        if Value > ToolLength then
+                            ToolLength = Value
+                        end
                     end
-                end
 
-                if Tool:FindFirstChild("GunMain") then
+                    if Tool:FindFirstChild("GunMain") then
 
-                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
-                    task.spawn(function()
-                        task.wait()
-                        Tool.RemoteFunction:InvokeServer("shoot", {
-                            MainPart.CFrame,
-                            Tool.Damage.Value
-                        })
-                    end)
+                        task.spawn(function()
+                            task.wait()
+                            Tool.RemoteFunction:InvokeServer("shoot", {
+                                MainPart.CFrame,
+                                Tool.Damage.Value
+                            })
+                        end)
 
-                else
+                    else
 
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
 
-                    local HumPos = Player.Character.HumanoidRootPart
-                    local ArmPos = Player.Character:FindFirstChild("Right Arm")
+                        local HumPos = Player.Character.HumanoidRootPart
+                        local ArmPos = Player.Character:FindFirstChild("Right Arm")
 
-                    Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2) --(Tool.Handle.Position.Y + ToolLength - MainPart.Position.Y)
+                        Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2) --(Tool.Handle.Position.Y + ToolLength - MainPart.Position.Y)
 
-                    task.spawn(function()
-                        task.wait()
-                        Tool.RemoteFunction:InvokeServer("hit", {
-                            Tool.Damage.Value,
-                            0
-                        })
-                    end)
+                        task.spawn(function()
+                            task.wait()
+                            Tool.RemoteFunction:InvokeServer("hit", {
+                                Tool.Damage.Value,
+                                0
+                            })
+                        end)
+                    end
                 end
             end
 
