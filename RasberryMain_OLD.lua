@@ -330,43 +330,45 @@ end)
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
-    if getnamecallmethod() == "SetCore" then
-        --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-        if #Args == 2 then
 
-            local TempColor
-            if type(Args[2].Color) == "Color3" then
-                TempColor = Args[2]
-            else
-                TempColor = Args[2].Color
-            end
+    if not checkcaller() then
+        if getnamecallmethod() == "SetCore" then
+            --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
+            if #Args == 2 then
 
-            print(TempColor, TempColor ~= Color3.new(1, 1, 0))
-            if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
-
-                Name = Args[2].Text
-                Color = TempColor
-                AddNewLabel = true
-
-            end
-            --table.foreach(Args[2], print)
-        end
-    end
-
-    if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits and not checkcaller() then
-        task.spawn(function()
-            for Index = 1, HitsPerUse do
-
-                if not InstantHit then
-                    task.wait()
+                local TempColor
+                if type(Args[2].Color) == "Color3" then
+                    TempColor = Args[2]
+                else
+                    TempColor = Args[2].Color
                 end
 
-                task.spawn(function()
-                    Self.InvokeServer(Self, unpack(Args))
-                end)
+                print(TempColor, TempColor ~= Color3.new(1, 1, 0))
+                if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
+                    Name = Args[2].Text
+                    Color = TempColor
+                    AddNewLabel = true
+
+                end
             end
-        end)
+        end
+
+        if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits then
+            task.spawn(function()
+                for Index = 1, HitsPerUse do
+
+                    if not InstantHit then
+                        task.wait()
+                    end
+
+                    task.spawn(function()
+                        Self.InvokeServer(Self, unpack(Args))
+                    end)
+
+                end
+            end)
+        end
     end
 
     return OldNamecall(Self, ...)
@@ -399,11 +401,10 @@ end
 
 local ToolName
 local EggDebounce = false
-local OffsetIndex = -2
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
-    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Right Arm") then
         
         --Collect eggs
 
@@ -486,7 +487,7 @@ RunService.Stepped:connect(function()
                     Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
                     task.spawn(function()
-                        task.wait()
+                        task.wait(0.1)
                         Tool.RemoteFunction:InvokeServer("shoot", {
                             MainPart.CFrame,
                             Tool.Damage.Value
@@ -497,16 +498,13 @@ RunService.Stepped:connect(function()
 
                     Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
 
-                    local HumPos = Player.Character.HumanoidRootPart.Position
-                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) * CFrame.new(-(MainPart.Position.X - Player.Character["Right Arm"].Position.X), 0, 0)
+                    local HumPos = Player.Character.HumanoidRootPart
+                    local ArmPos = Player.Character:FindFirstChild("Right Arm")
 
-                    OffsetIndex = OffsetIndex + 0.5
-                    if OffsetIndex == 3 then
-                        OffsetIndex = -2
-                    end
+                    Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
 
                     task.spawn(function()
-                        task.wait()
+                        task.wait(0.1)
                         Tool.RemoteFunction:InvokeServer("hit", {
                             Tool.Damage.Value,
                             0
