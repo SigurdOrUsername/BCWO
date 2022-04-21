@@ -97,6 +97,7 @@ Misc_Tab:AddTextBox("Collecting delay", function(Value)
 end)
 
 --// ESP / MINES SPESIFIC OPTIONS
+
 local FileName = "OreEsp.json"
 local Settings
 
@@ -112,7 +113,8 @@ else
     BlacklistData = Settings
 end
 
-if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines
+--We're currently in the mines
+if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") then
     local Ore_Tab = Window:AddTab("Ore")
     local ESP_Tab = Window:AddTab("ESP Settings")
 
@@ -287,18 +289,16 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
 
     if not checkcaller() then
-        if getnamecallmethod() == "SetCore" then
+        if getnamecallmethod() == "SetCore" and #Args == 2 and #Args[2] >= 2 then
+
+            print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
             --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-            if #Args == 2 and #Args[2] == 2 then
+            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
-                print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
-                if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+                Name = Args[2].Text
+                Color = Args[2].Color
+                AddNewLabel = true
 
-                    Name = Args[2].Text
-                    Color = Args[2].Color
-                    AddNewLabel = true
-
-                end
             end
         end
 
@@ -322,7 +322,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     return OldNamecall(Self, ...)
 end)
 
---//Anti Afk + anticheat bypass
+--//Anti Afk
 
 for Index, Value in next, getconnections(Player.Idled) do
     if Value["Disable"] then
@@ -331,12 +331,6 @@ for Index, Value in next, getconnections(Player.Idled) do
 
     if Value["Disconnect"] then
         Value["Disconnect"](Value)
-    end
-end
-
-for Index, Value in next, Player.Character:GetChildren() do
-    if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
-        Value:ClearAllChildren()
     end
 end
 
@@ -430,7 +424,6 @@ RunService.Stepped:connect(function()
                             task.wait(EggWait + math.random())
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
-                            --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
                         end
                     end
 
@@ -439,7 +432,7 @@ RunService.Stepped:connect(function()
             end)
         end
 
-        --Noclip
+        --Noclip + anticheat bypass
 
         for Index, Value in next, Player.Character:GetChildren() do
             if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
@@ -467,7 +460,7 @@ RunService.Stepped:connect(function()
 
         if Tool and Tool:FindFirstChild("RemoteFunction") then
 
-            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") and FarmNonBlacklistedOre then
+            if FarmNonBlacklistedOre and workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
 
                 local ClosestOre = GetClosestOre()
                 
@@ -516,7 +509,7 @@ RunService.Stepped:connect(function()
                         local HumPos = Player.Character.HumanoidRootPart
                         local ArmPos = Player.Character:FindFirstChild("Right Arm")
 
-                        Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2) --(Tool.Handle.Position.Y + ToolLength - MainPart.Position.Y)
+                        Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
 
                         task.spawn(function()
                             task.wait()
