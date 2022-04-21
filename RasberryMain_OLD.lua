@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.12")
+print("V_OLD: 1.13")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -16,12 +16,6 @@ local Statistics_Tab = Window:AddTab("Stats")
 local Misc_Tab = Window:AddTab("Misc")
 
 --// GENERAL TAB
-
---[[
-local RegenWhenLow = false
-General_Tab:AddSwitch("Regen", function(Value)
-end)
-]]
 
 local Tool
 local AutofarmMobs = false
@@ -265,45 +259,6 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     end
 end)
 
---//Anti Afk
-
-for Index, Value in next, getconnections(Player.Idled) do
-    if Value["Disable"] then
-        Value["Disable"](Value)
-    end
-
-    if Value["Disconnect"] then
-        Value["Disconnect"](Value)
-    end
-end
-
-for Index, Value in next, Player.Character:GetChildren() do
-    if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
-        Value:ClearAllChildren()
-    end
-end
-
-local Blacklist = {
-    "System",
-    "Chat",
-    "ChatMain",
-    "LocalCraft",
-    "Animate",
-    "Health",
-    "GuiControl",
-    "Boss",
-    "CameraScript"
-}
-
-local OldWait
-OldWait = hookfunction(getrenv().wait, function(Args)
-    if not table.find(Blacklist, tostring(getcallingscript())) and NoCd then
-        return OldWait()
-    end
-    
-    return OldWait(Args)
-end)
-
 local Name
 local Color
 local AddNewLabel = false
@@ -366,6 +321,48 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
 
     return OldNamecall(Self, ...)
 end)
+
+--//Anti Afk + anticheat bypass
+
+for Index, Value in next, getconnections(Player.Idled) do
+    if Value["Disable"] then
+        Value["Disable"](Value)
+    end
+
+    if Value["Disconnect"] then
+        Value["Disconnect"](Value)
+    end
+end
+
+for Index, Value in next, Player.Character:GetChildren() do
+    if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
+        Value:ClearAllChildren()
+    end
+end
+
+local Blacklist = {
+    "System",
+    "Chat",
+    "ChatMain",
+    "LocalCraft",
+    "Animate",
+    "Health",
+    "GuiControl",
+    "Boss",
+    "CameraScript"
+}
+
+--//No cooldown
+
+local OldWait
+OldWait = hookfunction(getrenv().wait, function(Args)
+    if not table.find(Blacklist, tostring(getcallingscript())) and NoCd then
+        return OldWait()
+    end
+    
+    return OldWait(Args)
+end)
+
 
 local function GetClosestMob()
     local Last = math.huge
@@ -462,7 +459,7 @@ RunService.Stepped:connect(function()
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.25, 0)
         end
 
-        if AutofarmMobs and ToolName then
+        if (AutofarmMobs or FarmNonBlacklistedOre) and ToolName then
             if Player.Backpack:FindFirstChild(ToolName) then
                 Player.Backpack:FindFirstChild(ToolName).Parent = Player.Character
             end
@@ -477,6 +474,7 @@ RunService.Stepped:connect(function()
                 if ClosestOre then
                     Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
 
+                    ToolName = Tool.Name
                     Tool.RemoteFunction:InvokeServer("hit", {
                         ClosestOre.Properties:FindFirstChild("Hitpoint"),
                         ClosestOre.Properties:FindFirstChild("Toughness"),
