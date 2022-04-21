@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.13")
+print("V_OLD: 1.14")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -288,20 +288,20 @@ local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
 
-    if not checkcaller() then
-        if getnamecallmethod() == "SetCore" and #Args == 2 and #Args[2] >= 2 then
+    if getnamecallmethod() == "SetCore" then
+        
+        print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
+        --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
+        if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
-            print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
-            --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
+            Name = Args[2].Text
+            Color = Args[2].Color
+            AddNewLabel = true
 
-                Name = Args[2].Text
-                Color = Args[2].Color
-                AddNewLabel = true
-
-            end
         end
+    end
 
+    if not checkcaller() then
         if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits then
             task.spawn(function()
                 for Index = 1, HitsPerUse do
@@ -488,6 +488,14 @@ RunService.Stepped:connect(function()
                         if Value > ToolLength then
                             ToolLength = Value
                         end
+                    end
+
+                    if Tool:FindFirstChild("Idle") then
+                        Tool.Idle:Destroy()
+
+                        --Reloading the tool animations
+                        Tool.Parent = Player.Backpack
+                        Tool.Parent = Player.Character
                     end
 
                     if Tool:FindFirstChild("GunMain") then
