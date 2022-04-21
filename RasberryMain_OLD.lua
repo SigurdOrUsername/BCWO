@@ -258,6 +258,8 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
                     StatisticsData_Drops[Name][2] = Amount + 1
                     StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
                 end
+
+                task.wait()
             end
         end
     end
@@ -464,7 +466,7 @@ RunService.Stepped:connect(function()
         end
 
         if AutofarmMobs or FarmNonBlacklistedOre then
-            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.01, 0)
+            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.25, 0)
         end
 
         if AutofarmMobs and ToolName then
