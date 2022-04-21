@@ -247,14 +247,16 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
     local Name = Matched:sub(3, #Matched - 1)
 
-    for Index = 1, Number do
-        if not StatisticsData_Drops[Name] then
-            StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
-        else
-            local Amount = StatisticsData_Drops[Name][2]
+    if Number and Matched and Name then
+        for Index = 1, Number do
+            if not StatisticsData_Drops[Name] then
+                StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
+            else
+                local Amount = StatisticsData_Drops[Name][2]
 
-            StatisticsData_Drops[Name][2] = Amount + 1
-            StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                StatisticsData_Drops[Name][2] = Amount + 1
+                StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+            end
         end
     end
 end)
@@ -358,11 +360,11 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
             task.spawn(function()
                 for Index = 1, HitsPerUse do
 
-                    if not InstantHit then
-                        task.wait()
-                    end
-
                     task.spawn(function()
+                        if not InstantHit then
+                            task.wait()
+                        end
+
                         Self.InvokeServer(Self, unpack(Args))
                     end)
 
@@ -503,7 +505,7 @@ RunService.Stepped:connect(function()
                     local HumPos = Player.Character.HumanoidRootPart
                     local ArmPos = Player.Character:FindFirstChild("Right Arm")
 
-                    Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
+                    Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2) --(Tool.Handle.Position.Y + ToolLength - MainPart.Position.Y)
 
                     task.spawn(function()
                         task.wait()
