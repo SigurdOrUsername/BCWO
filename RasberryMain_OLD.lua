@@ -399,7 +399,7 @@ local function GetClosestOre()
     for Index, Value in next, workspace.Map.Ores:GetChildren() do
         local IsWhitelistedOre = not BlacklistData[Value.Name:lower()]
         
-        if Value:FindFirstChild("Properties") and IsWhitelistedOre then
+        if Value:FindFirstChild("Properties") and Value.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
 
             local Dist = (Player.Character.HumanoidRootPart.Position - Value.Mineral.Position).Magnitude
             if Last > Dist then
@@ -474,7 +474,7 @@ RunService.Stepped:connect(function()
 
                 local ClosestOre = GetClosestOre()
                 
-                if ClosestOre and ClosestOre.Properties.Hitpoint.Value > 0 then
+                if ClosestOre then
                     Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
 
                     Tool.RemoteFunction:InvokeServer("hit", {
