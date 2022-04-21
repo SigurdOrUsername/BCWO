@@ -496,8 +496,7 @@ RunService.Stepped:connect(function()
                     local HumPos = Player.Character.HumanoidRootPart.Position
                     local BasePos = Player.Character["Right Arm"].Position
                     
-                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) - 
-                        Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), BasePos.Y - MainPart.Position.Y, BasePos.Z - MainPart.Position.Z--[[MainPart.Size.Z * 1.5]])
+                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), BasePos.Y - MainPart.Position.Y, BasePos.Z - MainPart.Position.Z--[[MainPart.Size.Z * 1.5]])
 
                     OffsetIndex = OffsetIndex + 0.5
                     if OffsetIndex == 3 then
