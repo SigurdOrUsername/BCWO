@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.14")
+print("V_OLD: 1.15")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -526,13 +526,26 @@ RunService.Stepped:connect(function()
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
-                        task.spawn(function()
-                            task.wait()
-                            Tool.RemoteFunction:InvokeServer("shoot", {
-                                MainPart.CFrame,
-                                Tool.Damage.Value
-                            })
-                        end)
+                        if Tool.GunMain then
+                            task.spawn(function()
+                                task.wait()
+                                Tool.RemoteFunction:InvokeServer("shoot", {
+                                    MainPart.CFrame,
+                                    Tool.Damage.Value
+                                })
+                            end)
+                            
+                        else
+
+                            task.spawn(function()
+                                task.wait()
+                                Tool.RemoteFunction:InvokeServer("hit", {
+                                    MainPart.Parent.Humanoid,
+                                    Tool.Damage.Value,
+                                    false
+                                })
+                            end)
+                        end
 
                     else
 
