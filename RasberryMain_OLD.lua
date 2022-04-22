@@ -436,13 +436,15 @@ RunService.Stepped:connect(function()
                     EggDebounce = true
                     for Index, Value in next, workspace:GetChildren() do
                         if Value.Name == "Egg" then
+                            --task.wait(EggWait + math.random())
+                            --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
                             task.wait(EggWait + math.random())
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
                         end
                     end
-
                     EggDebounce = false
+
                 end
             end)
         end
@@ -526,7 +528,7 @@ RunService.Stepped:connect(function()
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
-                        if Tool.GunMain then
+                        if Tool:FindFirstChild("GunMain") then
                             task.spawn(function()
                                 task.wait()
                                 Tool.RemoteFunction:InvokeServer("shoot", {
@@ -534,7 +536,7 @@ RunService.Stepped:connect(function()
                                     Tool.Damage.Value
                                 })
                             end)
-                            
+
                         else
 
                             task.spawn(function()
