@@ -526,7 +526,7 @@ RunService.Stepped:connect(function()
 
                     if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
 
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
 
                         if Tool:FindFirstChild("GunMain") then
                             task.spawn(function()
@@ -544,7 +544,7 @@ RunService.Stepped:connect(function()
                                 Tool.RemoteFunction:InvokeServer("hit", {
                                     MainPart.Parent.Humanoid,
                                     Tool.Damage.Value,
-                                    false
+                                    true
                                 })
                             end)
                         end
