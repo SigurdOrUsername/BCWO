@@ -219,7 +219,7 @@ local StatisticsData_Bosses = {}
 local StatisticsData_Drops = {}
 local StatisticsData_Biomes = {}
 
-local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Spawns")
+local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Kills")
 local Statistics_Tab_Drops = Statistics_Tab:AddFolder("Drops")
 local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 
@@ -235,6 +235,7 @@ workspace.ChildRemoved:Connect(function(Child)
             StatisticsData_Bosses[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
         end
 
+        task.wait(0.1)
     end
 end)
 
@@ -255,7 +256,7 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
                     StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
                 end
 
-                task.wait()
+                task.wait(0.1)
             end
         end
     end
