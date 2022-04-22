@@ -90,7 +90,7 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
 end)
 
 local EggWait = 2
-Misc_Tab:AddTextBox("Collecting delay", function(Value)
+Misc_Tab:AddTextBox("Collecting delay [Would not suggest less than 2 sec]", function(Value)
     if tonumber(Value) then
         EggWait = tonumber(Value)
     end
@@ -406,6 +406,20 @@ local function GetClosestOre()
 end
 
 local ToolName
+local OldToolName
+local ManualOverride = false
+local BossSpecialCases = {
+    ["Astaroth, The Monarch of Darkness"] = function()
+        if Player.Backpack:FindFirstChild("Clarent") then
+
+            ManualOverride = true
+            Player.Character:FindFirstChild(ToolName).Parent = Player.Backpack
+            ToolName = "Clarent"
+
+        end
+    end,
+}
+
 local EggDebounce = false
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
@@ -481,7 +495,16 @@ RunService.Stepped:connect(function()
                 local MainPart = GetClosestMob()
 
                 if MainPart then
-                    ToolName = Tool.Name
+
+                    if not ManualOverride then
+                        ToolName = Tool.Name
+                    end
+
+                    --[[
+                    if BossSpecialCases[MainPart.Parent.Name] then
+                        BossSpecialCases[MainPart.Parent.Name]()
+                    end
+                    ]]
                     
                     local ToolLength = 0
                     for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
@@ -498,7 +521,7 @@ RunService.Stepped:connect(function()
                         Tool.Parent = Player.Character
                     end
 
-                    if Tool:FindFirstChild("GunMain") then
+                    if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
 
