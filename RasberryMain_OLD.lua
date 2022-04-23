@@ -237,7 +237,7 @@ workspace.ChildRemoved:Connect(function(Child)
             StatisticsData_Bosses[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
         end
 
-        task.wait(0.1)
+        task.wait(0.5)
     end
 end)
 
@@ -258,7 +258,7 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
                     StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
                 end
 
-                task.wait(0.1)
+                task.wait(0.5)
             end
         end
     end
@@ -292,16 +292,19 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
 
     if getnamecallmethod() == "SetCore" then
-        
-        print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
-        --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-        if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
-            Name = Args[2].Text
-            Color = Args[2].Color
-            AddNewLabel = true
+        task.spawn(function()
+            task.wait(0.5)
+            print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
+            --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
+            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
-        end
+                Name = Args[2].Text
+                Color = Args[2].Color
+                AddNewLabel = true
+
+            end
+        end)
     end
 
     if not checkcaller() then
