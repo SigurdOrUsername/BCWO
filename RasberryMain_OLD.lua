@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.15")
+print("V_OLD: 1.16")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -89,12 +89,14 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
 end)
 
-local EggWait = 2
-Misc_Tab:AddTextBox("Collecting delay [Would not suggest less than 2 sec]", function(Value)
-    if tonumber(Value) then
+--[[
+local EggWait = 3
+Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 3 sec]", function(Value)
+    if tonumber(Value) and Value > 3 then
         EggWait = tonumber(Value)
     end
 end)
+]]
 
 --// ESP / MINES SPESIFIC OPTIONS
 
@@ -365,16 +367,16 @@ local function GetClosestMob()
 
     for Index, Value in next, workspace:GetChildren() do
 
-        local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-        if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
+        if Value:FindFirstChild("HumanoidRootPart") and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
+
             if Value:FindFirstChild("Boss") then
-                return MainPart
+                return Value.HumanoidRootPart
             end
 
             if Value:FindFirstChild("EnemyMain") then
-                local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
+                local Dist = (Player.Character.HumanoidRootPart.Position - Value.HumanoidRootPart.Position).Magnitude
                 if Last > Dist then
-                    Closest = MainPart
+                    Closest = Value.HumanoidRootPart
                     Last = Dist
                 end
             end
@@ -438,7 +440,7 @@ RunService.Stepped:connect(function()
                         if Value.Name == "Egg" then
                             --task.wait(EggWait + math.random())
                             --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
-                            task.wait(EggWait + math.random())
+                            task.wait(2 + math.random(1, 2))
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
                             firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
                         end
@@ -497,6 +499,7 @@ RunService.Stepped:connect(function()
 
                 local MainPart = GetClosestMob()
 
+                --warn(MainPart)
                 if MainPart then
 
                     if not ManualOverride then
@@ -529,24 +532,18 @@ RunService.Stepped:connect(function()
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
 
                         if Tool:FindFirstChild("GunMain") then
-                            task.spawn(function()
-                                task.wait()
-                                Tool.RemoteFunction:InvokeServer("shoot", {
-                                    MainPart.CFrame,
-                                    Tool.Damage.Value
-                                })
-                            end)
+                            Tool.RemoteFunction:InvokeServer("shoot", {
+                                MainPart.CFrame,
+                                Tool.Damage.Value
+                            })
 
                         else
 
-                            task.spawn(function()
-                                task.wait()
-                                Tool.RemoteFunction:InvokeServer("hit", {
-                                    MainPart.Parent.Humanoid,
-                                    Tool.Damage.Value,
-                                    true
-                                })
-                            end)
+                            Tool.RemoteFunction:InvokeServer("hit", {
+                                MainPart.Parent.Humanoid,
+                                Tool.Damage.Value,
+                                true
+                            })
                         end
 
                     else
@@ -558,13 +555,10 @@ RunService.Stepped:connect(function()
 
                         Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
 
-                        task.spawn(function()
-                            task.wait()
-                            Tool.RemoteFunction:InvokeServer("hit", {
-                                Tool.Damage.Value,
-                                0
-                            })
-                        end)
+                        Tool.RemoteFunction:InvokeServer("hit", {
+                            Tool.Damage.Value,
+                            0
+                        })
                     end
                 end
             end
