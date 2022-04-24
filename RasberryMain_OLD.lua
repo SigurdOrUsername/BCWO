@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.15")
+print("V_OLD: 1.16")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -90,13 +90,11 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
 end)
 
 local EggWait = 3
---[[
-Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 3 sec]", function(Value)
-    if tonumber(Value) and Value > 3 then
+Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 2 sec]", function(Value)
+    if tonumber(Value) and Value >= 2 then
         EggWait = tonumber(Value)
     end
 end)
-]]
 
 --// ESP / MINES SPESIFIC OPTIONS
 
@@ -237,7 +235,7 @@ workspace.ChildRemoved:Connect(function(Child)
             StatisticsData_Bosses[Child.Name][2] = Amount + 1
             StatisticsData_Bosses[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
         end
-        
+
     end
 end)
 
