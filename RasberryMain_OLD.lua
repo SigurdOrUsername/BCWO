@@ -369,16 +369,17 @@ local function GetClosestMob()
 
     for Index, Value in next, workspace:GetChildren() do
 
-        if Value:FindFirstChild("HumanoidRootPart") and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
+        if (Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")) and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
 
+            local MainPart = (Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso"))
             if Value:FindFirstChild("Boss") then
                 return Value.HumanoidRootPart
             end
 
             if Value:FindFirstChild("EnemyMain") then
-                local Dist = (Player.Character.HumanoidRootPart.Position - Value.HumanoidRootPart.Position).Magnitude
+                local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
                 if Last > Dist then
-                    Closest = Value.HumanoidRootPart
+                    Closest = MainPart
                     Last = Dist
                 end
             end
