@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.16")
+print("V_OLD: 1.15")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -89,8 +89,8 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
 end)
 
---[[
 local EggWait = 3
+--[[
 Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 3 sec]", function(Value)
     if tonumber(Value) and Value > 3 then
         EggWait = tonumber(Value)
@@ -228,6 +228,7 @@ local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 workspace.ChildRemoved:Connect(function(Child)
     if Child:FindFirstChild("Boss") and Child:FindFirstChild("Humanoid") and Child.Humanoid:FindFirstChild("creator") and Child.Humanoid.creator.Value == Player then
 
+        task.wait(0.5)
         if not StatisticsData_Bosses[Child.Name] then
             StatisticsData_Bosses[Child.Name] = {Statistics_Tab_Bosses:AddLabel(Child.Name .. ": 1"), 1}
         else
@@ -236,8 +237,7 @@ workspace.ChildRemoved:Connect(function(Child)
             StatisticsData_Bosses[Child.Name][2] = Amount + 1
             StatisticsData_Bosses[Child.Name][1].Text = Child.Name .. ": " .. tostring(Amount + 1)
         end
-
-        task.wait(0.5)
+        
     end
 end)
 
@@ -249,6 +249,8 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
 
         if Number and Matched and Name then
             for Index = 1, Number do
+
+                task.wait(0.5)
                 if not StatisticsData_Drops[Name] then
                     StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
                 else
@@ -257,8 +259,6 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
                     StatisticsData_Drops[Name][2] = Amount + 1
                     StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
                 end
-
-                task.wait(0.5)
             end
         end
     end
@@ -294,6 +294,7 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     if getnamecallmethod() == "SetCore" then
 
         task.spawn(function()
+
             task.wait(0.5)
             print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
             --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
@@ -441,11 +442,12 @@ RunService.Stepped:connect(function()
                     EggDebounce = true
                     for Index, Value in next, workspace:GetChildren() do
                         if Value.Name == "Egg" then
-                            --task.wait(EggWait + math.random())
+                            task.wait(EggWait + math.random())
                             --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
-                            task.wait(2 + math.random(1, 2))
-                            firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
-                            firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
+                            --task.wait(2 + math.random(1, 2))
+                            --firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
+                            --firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
+                            Value.CFrame = Player.Character.HumanoidRootPart.CFrame
                         end
                     end
                     EggDebounce = false
