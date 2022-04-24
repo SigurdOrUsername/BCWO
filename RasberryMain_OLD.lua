@@ -89,9 +89,9 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
 end)
 
-local EggWait = 3
-Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 2 sec]", function(Value)
-    if tonumber(Value) and Value >= 2 then
+local EggWait = 1
+Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 1 sec]", function(Value)
+    if tonumber(Value) and Value >= 1 then
         EggWait = tonumber(Value)
     end
 end)
