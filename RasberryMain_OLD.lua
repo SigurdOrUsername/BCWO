@@ -457,7 +457,7 @@ RunService.Stepped:connect(function()
         --Noclip + anticheat bypass
 
         for Index, Value in next, Player.Character:GetChildren() do
-            if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
+            if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") or Value.Name == " " then
                 Value:ClearAllChildren()
             end
         end
