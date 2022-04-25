@@ -483,11 +483,11 @@ RunService.Stepped:connect(function()
 
         if Tool and Tool:FindFirstChild("RemoteFunction") then
 
-            if FarmNonBlacklistedOre and workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
+            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
 
-                local ClosestOre = GetClosestOre()
+                local ClosestOre = GetClosestOre() --Call it for the ESP to work
                 
-                if ClosestOre then
+                if ClosestOre and FarmNonBlacklistedOre then
                     Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
 
                     ToolName = Tool.Name
