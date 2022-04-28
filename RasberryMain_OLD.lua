@@ -84,6 +84,16 @@ end)
 
 --// MISC OPTIONS
 
+local Firerate = 60
+Misc_Tab:AddSlider("Firerate", function(Value)
+    Firerate = Value
+end, {
+    ["min"] = 0,
+    ["max"] = 60,
+})
+
+Firerate = 60
+
 local CollectEggs = false
 Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
@@ -426,6 +436,7 @@ local BossSpecialCases = {
     end,
 }
 
+local FPSCount = 0
 local EggDebounce = false
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
@@ -442,10 +453,6 @@ RunService.Stepped:connect(function()
                     for Index, Value in next, workspace:GetChildren() do
                         if Value.Name == "Egg" then
                             task.wait(EggWait + math.random())
-                            --Player.Character.HumanoidRootPart.CFrame = Value.CFrame
-                            --task.wait(2 + math.random(1, 2))
-                            --firetouchinterest(Player.Character.HumanoidRootPart, Value, 0)
-                            --firetouchinterest(Player.Character.HumanoidRootPart, Value, 1)
                             Value.CFrame = Player.Character.HumanoidRootPart.CFrame
                         end
                     end
@@ -531,23 +538,30 @@ RunService.Stepped:connect(function()
                         Tool.Parent = Player.Character
                     end
 
+                    FPSCount = FPSCount + 1
+                    if FPSCount >= 60 then
+                        FPSCount = 0
+                    end
+
                     if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
 
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
 
-                        if Tool:FindFirstChild("GunMain") then
-                            Tool.RemoteFunction:InvokeServer("shoot", {
-                                MainPart.CFrame,
-                                Tool.Damage.Value
-                            })
+                        if Firerate >= FPSCount then
+                            if Tool:FindFirstChild("GunMain") then
+                                Tool.RemoteFunction:InvokeServer("shoot", {
+                                    MainPart.CFrame,
+                                    Tool.Damage.Value
+                                })
 
-                        else
+                            else
 
-                            Tool.RemoteFunction:InvokeServer("hit", {
-                                MainPart.Parent.Humanoid,
-                                Tool.Damage.Value,
-                                true
-                            })
+                                Tool.RemoteFunction:InvokeServer("hit", {
+                                    MainPart.Parent.Humanoid,
+                                    Tool.Damage.Value,
+                                    true
+                                })
+                            end
                         end
 
                     else
@@ -559,10 +573,12 @@ RunService.Stepped:connect(function()
 
                         Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
 
-                        Tool.RemoteFunction:InvokeServer("hit", {
-                            Tool.Damage.Value,
-                            0
-                        })
+                        if Firerate >= FPSCount then
+                            Tool.RemoteFunction:InvokeServer("hit", {
+                                Tool.Damage.Value,
+                                0
+                            })
+                        end
                     end
                 end
             end
