@@ -90,7 +90,8 @@ CharFolder:AddTextBox("Walkspeed", function(Value)
 end)
 
 CharFolder:AddTextBox("Jumpheight", function(Value)
-    Player.Character.Humanoid.JumpHeight = tonumber(Value)
+    Player:Kick("You have been banned from this experience. Reason: Baugette")
+    --Player.Character.Humanoid.JumpHeight = tonumber(Value)
 end)
 
 local NoClip = false
@@ -231,7 +232,6 @@ task.spawn(function()
         end
 
         TimerTab.Text = "Time: " .. tostring(Hours) .. ":" .. tostring(Minutes) .. ":" .. tostring(Timer)
-        --task.wait(1)
     end
 end)
 
