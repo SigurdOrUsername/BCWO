@@ -1,6 +1,6 @@
---loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMainTest.lua", true))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.0.9")
+print("V_OLD: 1.16")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -17,12 +17,6 @@ local Misc_Tab = Window:AddTab("Misc")
 
 --// GENERAL TAB
 
---[[
-local RegenWhenLow = false
-General_Tab:AddSwitch("Regen", function(Value)
-end)
-]]
-
 local Tool
 local AutofarmMobs = false
 General_Tab:AddSwitch("Auto attack mobs", function(Value)
@@ -33,15 +27,23 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
     end
 end)
 
---[[
+local Firerate = 60
+General_Tab:AddSlider("Firerate", function(Value)
+    Firerate = Value
+end, {
+    ["min"] = 0,
+    ["max"] = 60,
+})
+
+Firerate = 60
+
 local Distance = 5
 General_Tab:AddSlider("Distance from mob", function(Value)
     Distance = Value
 end, {
     ["min"] = 5,
-    ["max"] = 25
+    ["max"] = 100
 })
-]]
 
 local AutofarmMobName = ""
 General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
@@ -98,13 +100,14 @@ Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
 end)
 
 local EggWait = 1
-Misc_Tab:AddTextBox("Collecting delay", function(Value)
-    if tonumber(Value) then
+Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 1 sec]", function(Value)
+    if tonumber(Value) and Value >= 1 then
         EggWait = tonumber(Value)
     end
 end)
 
 --// ESP / MINES SPESIFIC OPTIONS
+
 local FileName = "OreEsp.json"
 local Settings
 
@@ -120,7 +123,8 @@ else
     BlacklistData = Settings
 end
 
-if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") then --We're currently in the mines
+--We're currently in the mines
+if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") then
     local Ore_Tab = Window:AddTab("Ore")
     local ESP_Tab = Window:AddTab("ESP Settings")
 
@@ -161,6 +165,16 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
         end
     end
 
+    --// TELEPORT FUNCTIONS
+
+    local Teleport = Window:AddTab("Teleports")
+
+    Teleport:AddButton("Teleport to the beneath", function()
+        if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("BeneathTeleporter") then
+            Player.Character.HumanoidRootPart.CFrame = workspace.Map.BeneathTeleporter.center.CFrame
+        end
+    end)
+
     --// ESP OBJECT VISUALS
 
     for Index, Value in next, workspace.Map.Ores:GetChildren() do
@@ -185,16 +199,6 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
     end)
 end
 
---// TELEPORT FUNCTIONS
-
-local Teleport = Window:AddTab("Teleports")
-
-Teleport:AddButton("Teleport to the beneath", function()
-    if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("BeneathTeleporter") then
-        Player.Character.HumanoidRootPart.CFrame = workspace.Map.BeneathTeleporter.center.CFrame
-    end
-end)
-
 --//Timer + statistcs
 
 local Timer = 0
@@ -203,7 +207,7 @@ local Hours = 0
 local TimerTab = Statistics_Tab:AddLabel("Time: 0:0:0")
 
 task.spawn(function()
-    while task.wait() do
+    while task.wait(1) do
         Timer = Timer + 1
 
         if Timer == 60 then
@@ -217,7 +221,7 @@ task.spawn(function()
         end
 
         TimerTab.Text = "Time: " .. tostring(Hours) .. ":" .. tostring(Minutes) .. ":" .. tostring(Timer)
-        task.wait(1)
+        --task.wait(1)
     end
 end)
 
@@ -225,13 +229,14 @@ local StatisticsData_Bosses = {}
 local StatisticsData_Drops = {}
 local StatisticsData_Biomes = {}
 
-local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Spawns")
+local Statistics_Tab_Bosses = Statistics_Tab:AddFolder("Boss Kills")
 local Statistics_Tab_Drops = Statistics_Tab:AddFolder("Drops")
 local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 
 workspace.ChildRemoved:Connect(function(Child)
     if Child:FindFirstChild("Boss") and Child:FindFirstChild("Humanoid") and Child.Humanoid:FindFirstChild("creator") and Child.Humanoid.creator.Value == Player then
 
+        task.wait(0.5)
         if not StatisticsData_Bosses[Child.Name] then
             StatisticsData_Bosses[Child.Name] = {Statistics_Tab_Bosses:AddLabel(Child.Name .. ": 1"), 1}
         else
@@ -245,67 +250,35 @@ workspace.ChildRemoved:Connect(function(Child)
 end)
 
 Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
-    local Number = string.match(Info.msg, "%d")
-    local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
-    local Name = Matched:sub(3, #Matched - 1)
+    if Info then
+        local Number = string.match(Info.msg, "%d")
+        local Matched = string.match(Info.msg, "got%s(%b" .. Number .. "!)")
+        local Name = Matched:sub(3, #Matched - 1)
 
-    for Index = 1, Number do
-        if not StatisticsData_Drops[Name] then
-            StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
-        else
-            local Amount = StatisticsData_Drops[Name][2]
+        if Number and Matched and Name then
+            for Index = 1, Number do
 
-            StatisticsData_Drops[Name][2] = Amount + 1
-            StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                task.wait(0.5)
+                if not StatisticsData_Drops[Name] then
+                    StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
+                else
+                    local Amount = StatisticsData_Drops[Name][2]
+
+                    StatisticsData_Drops[Name][2] = Amount + 1
+                    StatisticsData_Drops[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                end
+            end
         end
     end
 end)
 
 --[[
-workspace:FindFirstChildWhichIsA("BoolValue").Name.Changed:Connect(function(Change)
-    print(Change)
-end)
-]]
-
---//Anti Afk
-
-for Index, Value in next, getconnections(Player.Idled) do
-    Value:Disable()
-end
-
-for Index, Value in next, Player.Character:GetChildren() do
-    if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
-        Value:ClearAllChildren()
-    end
-end
-
-local Blacklist = {
-    "System",
-    "Chat",
-    "ChatMain",
-    "LocalCraft",
-    "Animate",
-    "Health",
-    "GuiControl",
-    "Boss",
-    "CameraScript"
-}
-
-local OldWait
-OldWait = hookfunction(getrenv().wait, function(Args)
-    if not table.find(Blacklist, tostring(getcallingscript())) and NoCd then
-        return OldWait()
-    end
-    
-    return OldWait(Args)
-end)
-
 local Name
 local Color
 local AddNewLabel = false
 
 task.spawn(function()
-    while wait() do
+    while task.wait() do
         if AddNewLabel then
 
             if not StatisticsData_Biomes[Name] then
@@ -322,65 +295,123 @@ task.spawn(function()
         end
     end
 end)
+]]
 
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
+
     if getnamecallmethod() == "SetCore" then
-        --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-        if #Args == 2 then
 
-            local TempColor
-            if type(Args[2].Color) == "Color3" then
-                TempColor = Args[2]
-            else
-                TempColor = Args[2].Color
-            end
-
-            print(TempColor, TempColor ~= Color3.new(1, 1, 0))
-            if TempColor ~= Color3.new(1, 1, 0) and TempColor ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
-
-                Name = Args[2].Text
-                Color = TempColor
-                AddNewLabel = true
-
-            end
-            --table.foreach(Args[2], print)
-        end
-    end
-
-    if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits and not checkcaller() then
         task.spawn(function()
-            for Index = 1, HitsPerUse do
 
-                if not InstantHit then
-                    task.wait()
-                end
+            task.wait(0.5)
+            print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
+            --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
+            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
 
                 task.spawn(function()
-                    Self.InvokeServer(Self, unpack(Args))
+                    if not StatisticsData_Biomes[Name] then
+                        StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes:AddLabel(Name .. ": 1"), 1}
+                        StatisticsData_Biomes[Name][1].TextColor3 = Color
+                    else
+                        local Amount = StatisticsData_Biomes[Name][2]
+            
+                        StatisticsData_Biomes[Name][2] = Amount + 1
+                        StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
+                    end
                 end)
+
+                --[[
+                Name = Args[2].Text
+                Color = Args[2].Color
+                AddNewLabel = true
+                ]]
 
             end
         end)
     end
 
+    if not checkcaller() then
+        if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits then
+            task.spawn(function()
+                for Index = 1, HitsPerUse do
+
+                    task.spawn(function()
+                        if not InstantHit then
+                            task.wait()
+                        end
+
+                        Self.InvokeServer(Self, unpack(Args))
+                    end)
+
+                end
+            end)
+        end
+    end
+
     return OldNamecall(Self, ...)
 end)
 
-local function GetClosest()
+--//Anti Afk
+
+for Index, Value in next, getconnections(Player.Idled) do
+    Value:Disable()
+end
+
+Player.CharacterAdded:Connect(function(Char)
+    for Index, Value in next, getconnections(Player.Idled) do
+        Value:Disable()
+    end
+end)
+
+local Blacklist = {
+    "System",
+    "Chat",
+    "ChatMain",
+    "LocalCraft",
+    "Animate",
+    "Health",
+    "GuiControl",
+    "Boss",
+    "CameraScript"
+}
+
+--//No cooldown
+
+local OldWait
+OldWait = hookfunction(getrenv().wait, function(Args)
+    if not table.find(Blacklist, tostring(getcallingscript())) and NoCd then
+        return OldWait()
+    end
+    
+    return OldWait(Args)
+end)
+
+local MobPriority = {
+    ""
+}
+
+local function GetClosestMob()
     local Last = math.huge
     local Closest
 
-    for Index, Value in next, workspace:GetChildren() do
+    for Index, MobName in next, MobPriority do
+        if workspace:FindFirstChild(MobName) then
+            return workspace:FindFirstChild(MobName)
+        end
+    end
 
-        local MainPart = Value:FindFirstChild("HumanoidRootPart") or Value:FindFirstChild("Torso")
-        if MainPart and not Value:FindFirstChildWhichIsA("ForceField") and Value:FindFirstChild("Humanoid") and Value.Humanoid.Health > 0 then
-            if Value:FindFirstChild("Boss") then
-                return MainPart
+    for Index, MobObject in next, workspace:GetChildren() do
+
+        if (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso")) and not MobObject:FindFirstChildWhichIsA("ForceField") and MobObject:FindFirstChild("Humanoid") and MobObject.Humanoid.Health > 0 then
+
+            local MainPart = (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso"))
+            if MobObject:FindFirstChild("Boss") then
+                return MobObject.HumanoidRootPart
             end
 
-            if Value:FindFirstChild("EnemyMain") then
+            if MobObject:FindFirstChild("EnemyMain") then
                 local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
                 if Last > Dist then
                     Closest = MainPart
@@ -393,13 +424,49 @@ local function GetClosest()
     return Closest
 end
 
+local function GetClosestOre()
+    local Last = math.huge
+    local Closest
+
+    for Index, Ore in next, workspace.Map.Ores:GetChildren() do
+        local IsWhitelistedOre = not BlacklistData[Ore.Name:lower()]
+        
+        if Ore:FindFirstChild("Properties") and Ore.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
+
+            local Dist = (Player.Character.HumanoidRootPart.Position - Ore.Mineral.Position).Magnitude
+            if Last > Dist then
+                Closest = Ore
+                Last = Dist
+            end
+        end
+
+        ESP[Ore.Name] = IsWhitelistedOre
+    end
+
+    return Closest
+end
+
 local ToolName
+local OldToolName
+local ManualOverride = false
+local BossSpecialCases = {
+    ["Astaroth, The Monarch of Darkness"] = function()
+        if Player.Backpack:FindFirstChild("Clarent") then
+
+            ManualOverride = true
+            Player.Character:FindFirstChild(ToolName).Parent = Player.Backpack
+            ToolName = "Clarent"
+
+        end
+    end,
+}
+
+local FPSCount = 0
 local EggDebounce = false
-local OffsetIndex = -2
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
-    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Right Arm") then
         
         --Collect eggs
 
@@ -410,20 +477,20 @@ RunService.Stepped:connect(function()
                     EggDebounce = true
                     for Index, Value in next, workspace:GetChildren() do
                         if Value.Name == "Egg" then
-                            Player.Character.HumanoidRootPart.CFrame = Value.CFrame
-                            task.wait(EggWait)
+                            task.wait(EggWait + math.random())
+                            Value.CFrame = Player.Character.HumanoidRootPart.CFrame
                         end
                     end
-
                     EggDebounce = false
+
                 end
             end)
         end
 
-        --Noclip
+        --Noclip + anticheat bypass
 
         for Index, Value in next, Player.Character:GetChildren() do
-            if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") then
+            if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") or Value.Name == " " then
                 Value:ClearAllChildren()
             end
         end
@@ -437,79 +504,107 @@ RunService.Stepped:connect(function()
         end
 
         if AutofarmMobs or FarmNonBlacklistedOre then
-            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.25, 0)
         end
 
-        if AutofarmMobs and ToolName then
+        if (AutofarmMobs or FarmNonBlacklistedOre) and ToolName then
             if Player.Backpack:FindFirstChild(ToolName) then
                 Player.Backpack:FindFirstChild(ToolName).Parent = Player.Character
             end
         end
 
-        if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
-            for Index, Value in next, workspace.Map.Ores:GetChildren() do
-                local IsWhitelistedOre = not BlacklistData[Value.Name:lower()]
+        if Tool and Tool:FindFirstChild("RemoteFunction") then
+
+            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
+
+                local ClosestOre = GetClosestOre() --Call it for the ESP to work
                 
-                if FarmNonBlacklistedOre and Tool and Tool:FindFirstChild("RemoteFunction") and Value:FindFirstChild("Properties") and Value.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
-                    Player.Character.HumanoidRootPart.CFrame = Value.Mineral.CFrame + Vector3.new(0, - (Value.Mineral.Size.Y * 1.5), 0)
+                if ClosestOre and FarmNonBlacklistedOre then
+                    Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
+
+                    ToolName = Tool.Name
                     Tool.RemoteFunction:InvokeServer("hit", {
-                        Value.Properties.Hitpoint,
-                        Value.Properties.Toughness,
-                        Value.Properties.Owner
+                        ClosestOre.Properties:FindFirstChild("Hitpoint"),
+                        ClosestOre.Properties:FindFirstChild("Toughness"),
+                        ClosestOre.Properties:FindFirstChild("Owner")
                     })
                 end
-
-                ESP[Value.Name] = IsWhitelistedOre
             end
-        end
 
-        if Tool and Tool:FindFirstChild("RemoteFunction") and AutofarmMobs then
+            if AutofarmMobs then
 
-            local MainPart = GetClosest()
+                local MainPart = GetClosestMob()
 
-            if MainPart then
-                ToolName = Tool.Name
-                
-                local ToolLength = 0
-                for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                    if Value > ToolLength then
-                        ToolLength = Value
+                --warn(MainPart)
+                if MainPart then
+
+                    if not ManualOverride then
+                        ToolName = Tool.Name
                     end
-                end
 
-                if Tool:FindFirstChild("GunMain") then
-
-                    Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, 500, 0)
-
-                    task.spawn(function()
-                        task.wait()
-                        Tool.RemoteFunction:InvokeServer("shoot", {
-                            MainPart.CFrame,
-                            Tool.Damage.Value
-                        })
-                    end)
-
-                else
-
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 30, 30))
-
-                    local HumPos = Player.Character.HumanoidRootPart.Position
-                    local BasePos = Player.Character["Right Arm"].Position
+                    --[[
+                    if BossSpecialCases[MainPart.Parent.Name] then
+                        BossSpecialCases[MainPart.Parent.Name]()
+                    end
+                    ]]
                     
-                    Tool.Grip = CFrame.new(HumPos - MainPart.Position) - Vector3.new(HumPos.X - (Player.Character["Right Arm"].Position.X + OffsetIndex), BasePos.Y - MainPart.Position.Y, BasePos.Z - MainPart.Position.Z--[[MainPart.Size.Z * 1.5]])
-
-                    OffsetIndex = OffsetIndex + 0.5
-                    if OffsetIndex == 3 then
-                        OffsetIndex = -2
+                    local ToolLength = 0
+                    for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
+                        if Value > ToolLength then
+                            ToolLength = Value
+                        end
                     end
 
-                    task.spawn(function()
-                        task.wait()
-                        Tool.RemoteFunction:InvokeServer("hit", {
-                            Tool.Damage.Value,
-                            0
-                        })
-                    end)
+                    if Tool:FindFirstChild("Idle") then
+                        Tool.Idle:Destroy()
+
+                        --Reloading the tool animations
+                        Tool.Parent = Player.Backpack
+                        Tool.Parent = Player.Character
+                    end
+
+                    FPSCount = FPSCount + 1
+                    if FPSCount >= 60 then
+                        FPSCount = 0
+                    end
+
+                    if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
+
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
+
+                        if Firerate >= FPSCount then
+                            if Tool:FindFirstChild("GunMain") then
+                                Tool.RemoteFunction:InvokeServer("shoot", {
+                                    MainPart.CFrame,
+                                    Tool.Damage.Value
+                                })
+
+                            else
+
+                                Tool.RemoteFunction:InvokeServer("hit", {
+                                    MainPart.Parent.Humanoid,
+                                    Tool.Damage.Value,
+                                    true
+                                })
+                            end
+                        end
+
+                    else
+
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
+
+                        local HumPos = Player.Character.HumanoidRootPart
+                        local ArmPos = Player.Character:FindFirstChild("Right Arm")
+
+                        Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
+
+                        if Firerate >= FPSCount then
+                            Tool.RemoteFunction:InvokeServer("hit", {
+                                Tool.Damage.Value,
+                                0
+                            })
+                        end
+                    end
                 end
             end
 
