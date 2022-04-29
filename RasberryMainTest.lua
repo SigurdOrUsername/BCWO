@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 1.16")
+print("V_OLD: 2.0.0")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -27,28 +27,34 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
     end
 end)
 
-local Firerate = 60
-General_Tab:AddSlider("Firerate", function(Value)
+local AutofarmMobName = ""
+General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
+    AutofarmMobName = Value:lower()
+end)
+
+General_Tab:AddLabel("Misc General tab options")
+
+local Firerate = 0
+local Firerate_Slider = General_Tab:AddSlider("Firerate", function(Value)
     Firerate = Value
 end, {
     ["min"] = 0,
     ["max"] = 60,
 })
 
+Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local Distance = 5
-General_Tab:AddSlider("Distance from mob", function(Value)
-    Distance = Value
+local MobDistance = 0
+local MobDistance_Slider = General_Tab:AddSlider("Distance from mob", function(Value)
+    MobDistance = Value
 end, {
     ["min"] = 5,
     ["max"] = 100
 })
 
-local AutofarmMobName = ""
-General_Tab:AddTextBox("Mob name (For all mobs, write all)", function(Value)
-    AutofarmMobName = Value:lower()
-end)
+MobDistance_Slider:Set(6) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
+MobDistance = 10
 
 --// CHAR CHEATS TAB
 
@@ -67,8 +73,6 @@ Character_Tab:AddSwitch("No delay when using multiple hits [Lag warning]", funct
     InstantHit = Value
 end)
 
-Character_Tab:AddLabel("This auto-enables when autofarming")
-
 local HitsPerUse = 1
 Character_Tab:AddSlider("Hits per use", function(Value)
     HitsPerUse = Value
@@ -76,6 +80,8 @@ end, {
     ["min"] = 1,
     ["max"] = 100
 })
+
+Character_Tab:AddLabel("All of the options above will have NO effect when autofarming.")
 
 local CharFolder = Character_Tab:AddFolder("Character Mods")
 
@@ -141,7 +147,9 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
         Value = Value:lower()
         if not BlacklistData_Visual[Value] then
             BlacklistData_Visual[Value] = DropdownData:Add(Value)
-            BlacklistData[Value] = Value
+            table.insert(BlacklistData, Value)
+            --BlacklistData[Value] = Value
+
             writefile(FileName, HttpService:JSONEncode(BlacklistData))
         end
     end)
@@ -151,7 +159,9 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
         if BlacklistData_Visual[Value] then
             BlacklistData_Visual[Value]:Remove(Value)
             BlacklistData_Visual[Value] = nil
-            BlacklistData[Value] = nil
+            table.remove(BlacklistData, Value)
+            --BlacklistData[Value] = nil
+
             writefile(FileName, HttpService:JSONEncode(BlacklistData))
         end
     end)
@@ -160,8 +170,8 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
     end)
 
     if Settings then
-        for Index, Value in next, Settings do
-            BlacklistData_Visual[Index] = DropdownData:Add(Index)
+        for Name, Value in next, Settings do --Formatted like {"Name": "Name"}
+            BlacklistData_Visual[Name] = DropdownData:Add(Name)
         end
     end
 
@@ -177,13 +187,13 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
 
     --// ESP OBJECT VISUALS
 
-    for Index, Value in next, workspace.Map.Ores:GetChildren() do
-        ESP:Add(Value, {
-            PrimaryPart = Value:FindFirstChild("HumanoidRootPart"),
-            Name = Value.Name,
-            Color = Value.Mineral.Color,
+    for Index, Ore in next, workspace.Map.Ores:GetChildren() do
+        ESP:Add(Ore, {
+            PrimaryPart = Ore:FindFirstChild("HumanoidRootPart"),
+            Name = Ore.Name,
+            Color = Ore.Mineral.Color,
             Visible = false,
-            IsEnabled = Value.Name
+            IsEnabled = Ore.Name
         })
     end
 
@@ -272,7 +282,6 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
     end
 end)
 
---[[
 local Name
 local Color
 local AddNewLabel = false
@@ -295,7 +304,6 @@ task.spawn(function()
         end
     end
 end)
-]]
 
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
@@ -306,28 +314,12 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
         task.spawn(function()
 
             task.wait(0.5)
-            print(Args[2].Color, Args[2].Color ~= Color3.new(1, 1, 0))
+            Name = Args[2].Text
+            Color = Args[2].Color
+
             --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
-            if Args[2].Color ~= Color3.new(1, 1, 0) and Args[2].Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Args[2].Text, "got") then
-
-                task.spawn(function()
-                    if not StatisticsData_Biomes[Name] then
-                        StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes:AddLabel(Name .. ": 1"), 1}
-                        StatisticsData_Biomes[Name][1].TextColor3 = Color
-                    else
-                        local Amount = StatisticsData_Biomes[Name][2]
-            
-                        StatisticsData_Biomes[Name][2] = Amount + 1
-                        StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
-                    end
-                end)
-
-                --[[
-                Name = Args[2].Text
-                Color = Args[2].Color
+            if Color ~= Color3.new(1, 1, 0) and Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Name, "got") then
                 AddNewLabel = true
-                ]]
-
             end
         end)
     end
@@ -355,13 +347,13 @@ end)
 
 --//Anti Afk
 
-for Index, Value in next, getconnections(Player.Idled) do
-    Value:Disable()
+for Index, Connection in next, getconnections(Player.Idled) do
+    Connection:Disable()
 end
 
 Player.CharacterAdded:Connect(function(Char)
-    for Index, Value in next, getconnections(Player.Idled) do
-        Value:Disable()
+    for Index, Connection in next, getconnections(Player.Idled) do
+        Connection:Disable()
     end
 end)
 
@@ -475,10 +467,10 @@ RunService.Stepped:connect(function()
                 if CollectEggs then
 
                     EggDebounce = true
-                    for Index, Value in next, workspace:GetChildren() do
-                        if Value.Name == "Egg" then
+                    for Index, Egg in next, workspace:GetChildren() do
+                        if Egg.Name == "Egg" then
                             task.wait(EggWait + math.random())
-                            Value.CFrame = Player.Character.HumanoidRootPart.CFrame
+                            Egg.CFrame = Player.Character.HumanoidRootPart.CFrame
                         end
                     end
                     EggDebounce = false
@@ -489,16 +481,16 @@ RunService.Stepped:connect(function()
 
         --Noclip + anticheat bypass
 
-        for Index, Value in next, Player.Character:GetChildren() do
-            if (#Value:GetChildren() == 2 and Value.ClassName == "Folder") or Value.Name == " " then
-                Value:ClearAllChildren()
+        for Index, AntiCheat in next, Player.Character:GetChildren() do
+            if (#AntiCheat:GetChildren() == 2 and AntiCheat.ClassName == "Folder") or AntiCheat.Name == " " then
+                AntiCheat:ClearAllChildren()
             end
         end
 
-        for Index, Value in next, Player.Character:GetDescendants() do
-            if Value:IsA("BasePart") and Value.CanCollide then
+        for Index, BasePart in next, Player.Character:GetDescendants() do
+            if BasePart:IsA("BasePart") and BasePart.CanCollide then
                 if NoClip or AutofarmMobs or FarmNonBlacklistedOre then
-                    Value.CanCollide = false
+                    BasePart.CanCollide = false
                 end
             end
         end
@@ -535,7 +527,7 @@ RunService.Stepped:connect(function()
 
                 local MainPart = GetClosestMob()
 
-                --warn(MainPart)
+                warn(MainPart)
                 if MainPart then
 
                     if not ManualOverride then
@@ -549,9 +541,9 @@ RunService.Stepped:connect(function()
                     ]]
                     
                     local ToolLength = 0
-                    for Index, Value in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                        if Value > ToolLength then
-                            ToolLength = Value
+                    for Index, ToolSize in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
+                        if ToolSize > ToolLength then
+                            ToolLength = ToolSize
                         end
                     end
 
@@ -591,7 +583,7 @@ RunService.Stepped:connect(function()
 
                     else
 
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + Distance))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + MobDistance))
 
                         local HumPos = Player.Character.HumanoidRootPart
                         local ArmPos = Player.Character:FindFirstChild("Right Arm")
