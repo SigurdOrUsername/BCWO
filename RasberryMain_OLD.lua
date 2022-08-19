@@ -48,9 +48,14 @@ Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider 
 Firerate = 60
 
 local DistanceFromMob = 3000
-General_Tab:AddTextBox("Distance from mob", function(Value)
+local Distance_Slider = General_Tab:AddSlider("Distance from mob", function(Value)
     DistanceFromMob = tonumber(Value)
-end)
+end, {
+    ["min"] = 0,
+    ["max"] = 3000
+})
+
+Distance_Slider:Set(100)
 
 --// CHAR CHEATS TAB
 
