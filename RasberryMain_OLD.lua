@@ -24,6 +24,8 @@ General_Tab:AddSwitch("Auto attack mobs", function(Value)
 
     if not Value then
         Tool.Grip = CFrame.new(0, 0, 0)
+        Player.Character.Animate.Disabled = false
+        workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid
     end
 end)
 
@@ -45,16 +47,10 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local MobDistance = 0
-local MobDistance_Slider = General_Tab:AddSlider("Distance from mob", function(Value)
-    MobDistance = Value
-end, {
-    ["min"] = 5,
-    ["max"] = 100
-})
-
-MobDistance_Slider:Set(6) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
-MobDistance = 10
+local DistanceFromMob = 3000
+General_Tab:AddTextBox("Distance from mob", function(Value)
+    DistanceFromMob = tonumber(Value)
+end)
 
 --// CHAR CHEATS TAB
 
@@ -100,7 +96,7 @@ CharFolder:AddSwitch("No-clip", function(Value)
 end)
 
 --// MISC OPTIONS
-
+--[[
 local CollectEggs = false
 Misc_Tab:AddSwitch("Collect all eggs in area", function(Value)
     CollectEggs = Value
@@ -112,6 +108,7 @@ Misc_Tab:AddTextBox("Collecting delay [Cannot go lower than 1 sec]", function(Va
         EggWait = tonumber(Value)
     end
 end)
+]]
 
 --// ESP / MINES SPESIFIC OPTIONS
 
@@ -220,17 +217,14 @@ local TimerTab = Statistics_Tab:AddLabel("Time: 0:0:0")
 task.spawn(function()
     while task.wait(1) do
         Timer = Timer + 1
-
         if Timer == 60 then
             Minutes = Minutes + 1
             Timer = 0
         end
-
         if Minutes == 60 then
             Hours = Hours + 1
             Minutes = 0
         end
-
         TimerTab.Text = "Time: " .. tostring(Hours) .. ":" .. tostring(Minutes) .. ":" .. tostring(Timer)
     end
 end)
@@ -245,7 +239,6 @@ local Statistics_Tab_Biomes = Statistics_Tab:AddFolder("Biomes")
 
 workspace.ChildRemoved:Connect(function(Child)
     if Child:FindFirstChild("Boss") and Child:FindFirstChild("Humanoid") and Child.Humanoid:FindFirstChild("creator") and Child.Humanoid.creator.Value == Player then
-
         task.wait(0.5)
         if not StatisticsData_Bosses[Child.Name] then
             StatisticsData_Bosses[Child.Name] = {Statistics_Tab_Bosses:AddLabel(Child.Name .. ": 1"), 1}
@@ -267,7 +260,6 @@ Player.PlayerScripts.ClientControl.Event:Connect(function(Info)
 
         if Number and Matched and Name then
             for Index = 1, Number do
-
                 task.wait(0.5)
                 if not StatisticsData_Drops[Name] then
                     StatisticsData_Drops[Name] = {Statistics_Tab_Drops:AddLabel(Name .. ": 1"), 1}
@@ -289,7 +281,6 @@ local AddNewLabel = false
 task.spawn(function()
     while task.wait() do
         if AddNewLabel then
-
             if not StatisticsData_Biomes[Name] then
                 StatisticsData_Biomes[Name] = {Statistics_Tab_Biomes:AddLabel(Name .. ": 1"), 1}
                 StatisticsData_Biomes[Name][1].TextColor3 = Color
@@ -299,7 +290,6 @@ task.spawn(function()
                 StatisticsData_Biomes[Name][2] = Amount + 1
                 StatisticsData_Biomes[Name][1].Text = Name .. ": " .. tostring(Amount + 1)
             end
-
             AddNewLabel = false
         end
     end
@@ -310,13 +300,10 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
     local Args = {...}
 
     if getnamecallmethod() == "SetCore" then
-
         task.spawn(function()
-
             task.wait(0.5)
             Name = Args[2].Text
             Color = Args[2].Color
-
             --Yellow (Tips, enemy spawns, ect), Red (Player got a rare item) and Player got item
             if Color ~= Color3.new(1, 1, 0) and Color ~= Color3.new(1, 0.25, 0.25) and not string.find(Name, "got") then
                 AddNewLabel = true
@@ -328,15 +315,12 @@ OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
         if getnamecallmethod() == "InvokeServer" and tostring(Self) == "RemoteFunction" and MultipleHits then
             task.spawn(function()
                 for Index = 1, HitsPerUse do
-
                     task.spawn(function()
                         if not InstantHit then
                             task.wait()
                         end
-
                         Self.InvokeServer(Self, unpack(Args))
                     end)
-
                 end
             end)
         end
@@ -395,14 +379,12 @@ local function GetClosestMob()
     end
 
     for Index, MobObject in next, workspace:GetChildren() do
-
         if (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso")) and not MobObject:FindFirstChildWhichIsA("ForceField") and MobObject:FindFirstChild("Humanoid") and MobObject.Humanoid.Health > 0 then
-
             local MainPart = (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso"))
+            
             if MobObject:FindFirstChild("Boss") then
                 return MobObject.HumanoidRootPart
             end
-
             if MobObject:FindFirstChild("EnemyMain") then
                 local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
                 if Last > Dist then
@@ -424,8 +406,8 @@ local function GetClosestOre()
         local IsWhitelistedOre = not BlacklistData[Ore.Name:lower()]
         
         if Ore:FindFirstChild("Properties") and Ore.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
-
             local Dist = (Player.Character.HumanoidRootPart.Position - Ore.Mineral.Position).Magnitude
+            
             if Last > Dist then
                 Closest = Ore
                 Last = Dist
@@ -454,12 +436,13 @@ local BossSpecialCases = {
 }
 
 local FPSCount = 0
-local EggDebounce = false
+--local EggDebounce = false
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
 
     if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Right Arm") then
         
+        --[[
         --Collect eggs
 
         if not EggDebounce then
@@ -478,7 +461,7 @@ RunService.Stepped:connect(function()
                 end
             end)
         end
-
+        ]]
         --Noclip + anticheat bypass
 
         for Index, AntiCheat in next, Player.Character:GetChildren() do
@@ -506,9 +489,7 @@ RunService.Stepped:connect(function()
         end
 
         if Tool and Tool:FindFirstChild("RemoteFunction") then
-
             if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
-
                 local ClosestOre = GetClosestOre() --Call it for the ESP to work
                 
                 if ClosestOre and FarmNonBlacklistedOre then
@@ -524,12 +505,9 @@ RunService.Stepped:connect(function()
             end
 
             if AutofarmMobs then
-
                 local MainPart = GetClosestMob()
 
-                warn(MainPart)
                 if MainPart then
-
                     if not ManualOverride then
                         ToolName = Tool.Name
                     end
@@ -539,13 +517,6 @@ RunService.Stepped:connect(function()
                         BossSpecialCases[MainPart.Parent.Name]()
                     end
                     ]]
-                    
-                    local ToolLength = 0
-                    for Index, ToolSize in next, {Tool.Handle.Size.X, Tool.Handle.Size.Y, Tool.Handle.Size.Z} do
-                        if ToolSize > ToolLength then
-                            ToolLength = ToolSize
-                        end
-                    end
 
                     if Tool:FindFirstChild("Idle") then
                         Tool.Idle:Destroy()
@@ -555,24 +526,27 @@ RunService.Stepped:connect(function()
                         Tool.Parent = Player.Character
                     end
 
+                    if Player.Character:FindFirstChild("Animate") and not Player.Character.Animate.Disabled then
+                        for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
+                            Track:Stop()
+                        end
+                        Player.Character.Animate.Disabled = true
+                    end
+
                     FPSCount = FPSCount + 1
                     if FPSCount >= 60 then
                         FPSCount = 0
                     end
 
                     if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
-
                         Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
-
                         if Firerate >= FPSCount then
                             if Tool:FindFirstChild("GunMain") then
                                 Tool.RemoteFunction:InvokeServer("shoot", {
                                     MainPart.CFrame,
                                     Tool.Damage.Value
                                 })
-
                             else
-
                                 Tool.RemoteFunction:InvokeServer("hit", {
                                     MainPart.Parent.Humanoid,
                                     Tool.Damage.Value,
@@ -580,16 +554,10 @@ RunService.Stepped:connect(function()
                                 })
                             end
                         end
-
                     else
-
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, 0, ToolLength + MobDistance))
-
-                        local HumPos = Player.Character.HumanoidRootPart
-                        local ArmPos = Player.Character:FindFirstChild("Right Arm")
-
-                        Tool.Grip = CFrame.new(HumPos.Position - MainPart.Position) * CFrame.new(-(MainPart.Position.X - ArmPos.Position.X), 0, -2)
-
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, DistanceFromMob, 0))
+                        workspace.CurrentCamera.CameraSubject = Tool.Handle
+                        Tool.Grip = CFrame.new(0, 0, DistanceFromMob)
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
                                 Tool.Damage.Value,
@@ -599,7 +567,6 @@ RunService.Stepped:connect(function()
                     end
                 end
             end
-
         end
     end
 end)
