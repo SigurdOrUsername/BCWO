@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.1")
+print("V_OLD: 2.0.2")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -383,7 +383,7 @@ local function GetClosestMob()
             local MainPart = (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso"))
             
             if MobObject:FindFirstChild("Boss") then
-                return MobObject.Torso
+                return MobObject.Head
             end
             if MobObject:FindFirstChild("EnemyMain") then
                 local Dist = (Player.Character.HumanoidRootPart.Position - MainPart.Position).Magnitude
