@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.2B")
+print("V_OLD: 2.0.3")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -47,12 +47,12 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local DistanceFromMob = 3000
+local DistanceFromMob = 5000
 local Distance_Slider = General_Tab:AddSlider("Distance from mob", function(Value)
     DistanceFromMob = tonumber(Value)
 end, {
     ["min"] = 0,
-    ["max"] = 3000
+    ["max"] = 5000
 })
 
 Distance_Slider:Set(100)
@@ -151,7 +151,6 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
         if not BlacklistData_Visual[Value] then
             BlacklistData_Visual[Value] = DropdownData:Add(Value)
             table.insert(BlacklistData, Value)
-            --BlacklistData[Value] = Value
 
             writefile(FileName, HttpService:JSONEncode(BlacklistData))
         end
@@ -162,8 +161,7 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
         if BlacklistData_Visual[Value] then
             BlacklistData_Visual[Value]:Remove(Value)
             BlacklistData_Visual[Value] = nil
-            table.remove(BlacklistData, Value)
-            --BlacklistData[Value] = nil
+            table.remove(BlacklistData, table.find(BlacklistData, Value))
 
             writefile(FileName, HttpService:JSONEncode(BlacklistData))
         end
@@ -173,7 +171,7 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
     end)
 
     if Settings then
-        for Name, Value in next, Settings do --Formatted like {"Name": "Name"}
+        for Index, Name in next, Settings do
             BlacklistData_Visual[Name] = DropdownData:Add(Name)
         end
     end
@@ -191,6 +189,7 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
     --// ESP OBJECT VISUALS
 
     for Index, Ore in next, workspace.Map.Ores:GetChildren() do
+        Ore.Name = Ore.Name:lower()
         ESP:Add(Ore, {
             PrimaryPart = Ore:FindFirstChild("HumanoidRootPart"),
             Name = Ore.Name,
@@ -202,6 +201,7 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
 
     workspace.Map.Ores.ChildAdded:Connect(function(Child)
         Child:WaitForChild("Mineral")
+        Child.Name = Child.Name:lower()
         ESP:Add(Child, {
             PrimaryPart = Child:FindFirstChild("HumanoidRootPart"),
             Name = Child.Name,
@@ -209,6 +209,14 @@ if workspace:WaitForChild("Map", 3) and workspace.Map:FindFirstChild("Ores") the
             Visible = false,
             IsEnabled = Child.Name
         })
+    end)
+
+    task.spawn(function()
+        while task.wait() do
+            for Index, Ore in next, workspace.Map.Ores:GetChildren() do                
+                ESP[Ore.Name] = not table.find(BlacklistData, Ore.Name)
+            end
+        end
     end)
 end
 
@@ -369,19 +377,9 @@ OldWait = hookfunction(getrenv().wait, function(Args)
     return OldWait(Args)
 end)
 
-local MobPriority = {
-    ""
-}
-
 local function GetClosestMob()
     local Last = math.huge
     local Closest
-
-    for Index, MobName in next, MobPriority do
-        if workspace:FindFirstChild(MobName) then
-            return workspace:FindFirstChild(MobName)
-        end
-    end
 
     for Index, MobObject in next, workspace:GetChildren() do
         if (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso")) and not MobObject:FindFirstChildWhichIsA("ForceField") and MobObject:FindFirstChild("Humanoid") and MobObject.Humanoid.Health > 0 then
@@ -408,8 +406,6 @@ local function GetClosestOre()
     local Closest
 
     for Index, Ore in next, workspace.Map.Ores:GetChildren() do
-        local IsWhitelistedOre = not BlacklistData[Ore.Name:lower()]
-        
         if Ore:FindFirstChild("Properties") and Ore.Properties.Hitpoint.Value > 0 and IsWhitelistedOre then
             local Dist = (Player.Character.HumanoidRootPart.Position - Ore.Mineral.Position).Magnitude
             
@@ -418,8 +414,6 @@ local function GetClosestOre()
                 Last = Dist
             end
         end
-
-        ESP[Ore.Name] = IsWhitelistedOre
     end
 
     return Closest
@@ -494,19 +488,16 @@ RunService.Stepped:connect(function()
         end
 
         if Tool and Tool:FindFirstChild("RemoteFunction") then
-            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") then
-                local ClosestOre = GetClosestOre() --Call it for the ESP to work
-                
-                if ClosestOre and FarmNonBlacklistedOre then
-                    Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
+            if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") and ClosestOre and FarmNonBlacklistedOre then                
+                local ClosestOre = GetClosestOre()
 
-                    ToolName = Tool.Name
-                    Tool.RemoteFunction:InvokeServer("hit", {
-                        ClosestOre.Properties:FindFirstChild("Hitpoint"),
-                        ClosestOre.Properties:FindFirstChild("Toughness"),
-                        ClosestOre.Properties:FindFirstChild("Owner")
-                    })
-                end
+                Player.Character.HumanoidRootPart.CFrame = ClosestOre.Mineral.CFrame + Vector3.new(0, -(ClosestOre.Mineral.Size.Y * 1.2), 0)
+                ToolName = Tool.Name
+                Tool.RemoteFunction:InvokeServer("hit", {
+                    ClosestOre.Properties:FindFirstChild("Hitpoint"),
+                    ClosestOre.Properties:FindFirstChild("Toughness"),
+                    ClosestOre.Properties:FindFirstChild("Owner")
+                })
             end
 
             if AutofarmMobs then
