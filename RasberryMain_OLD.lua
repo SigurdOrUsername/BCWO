@@ -47,15 +47,18 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local DistanceFromMob = 5000
-local Distance_Slider = General_Tab:AddSlider("Distance from mob", function(Value)
-    DistanceFromMob = tonumber(Value)
-end, {
-    ["min"] = 0,
-    ["max"] = 5000
-})
+local Cords = {0, 1000, 0}
+local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 0, 1000, 0]")
 
-Distance_Slider:Set(100)
+CordFolder:AddTextBox("X", function(Value)
+    Cords[1] = Value
+end)
+CordFolder:AddTextBox("Y", function(Value)
+    Cords[2] = Value
+end)
+CordFolder:AddTextBox("Z", function(Value)
+    Cords[3] = Value
+end)
 
 --// CHAR CHEATS TAB
 
@@ -545,7 +548,7 @@ RunService.Stepped:connect(function()
                         FPSCount = 0
                     end
                     if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, DistanceFromMob, 0)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(Cords[1], Cords[3], Cords[2])
                         workspace.CurrentCamera.CameraScript = MainPart
                         if Firerate >= FPSCount then
                             if Tool:FindFirstChild("GunMain") then
@@ -562,9 +565,14 @@ RunService.Stepped:connect(function()
                             end
                         end
                     else
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, DistanceFromMob, 0))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(Cords[1], Cords[3], Cords[2]))
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
-                        Tool.Grip = CFrame.new(0, 0, DistanceFromMob) * CFrame.new(ClosestMobReturnPartOffset[1], ClosestMobReturnPartOffset[2], ClosestMobReturnPartOffset[3])
+
+                        local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
+                        local ZCord = Player.Character.HumanoidRootPart.CFrame.Z - MainPart.CFrame.Z
+                        local YCord = Player.Character.HumanoidRootPart.CFrame.Y - MainPart.CFrame.Y
+
+                        Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
                                 3,
