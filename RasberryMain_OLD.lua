@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.3")
+print("V_OLD: 2.0.4")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -377,13 +377,14 @@ OldWait = hookfunction(getrenv().wait, function(Args)
     return OldWait(Args)
 end)
 
+local ClosestMobReturnPartOffset = {0, 0, 0}
 local function GetClosestMob()
     local Last = math.huge
     local Closest
 
     for Index, MobObject in next, workspace:GetChildren() do
         if (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso")) and not MobObject:FindFirstChildWhichIsA("ForceField") and MobObject:FindFirstChild("Humanoid") and MobObject.Humanoid.Health > 0 then
-            local MainPart = (MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso"))
+            local MainPart = MobObject:FindFirstChild("HumanoidRootPart") or MobObject:FindFirstChild("Torso")
             
             if MobObject:FindFirstChild("Boss") then
                 return MobObject.Head
@@ -419,10 +420,23 @@ local function GetClosestOre()
     return Closest
 end
 
+--//SPECIAL CASES FOR MOBS
+
 local ToolName
-local OldToolName
-local ManualOverride = false
 local BossSpecialCases = {
+    ["Chirurgia, The Raging Tide"] = {
+    function()
+        warn("offseting by -4 on X")
+        ClosestMobReturnPartOffset = {0, 0, 0}
+        --DistanceFromMob = 250
+        --task.wait(0.5)
+        --DistanceFromMob = 5000
+    end,
+    function()
+        ClosestMobReturnPartOffset = {0, 0, 0}
+        --DistanceFromMob = 5000
+    end}
+    --[[
     ["Astaroth, The Monarch of Darkness"] = function()
         if Player.Backpack:FindFirstChild("Clarent") then
 
@@ -432,9 +446,11 @@ local BossSpecialCases = {
 
         end
     end,
+    ]]
 }
 
 local FPSCount = 0
+local EnemyDeadDebounce = false
 --local EggDebounce = false
 RunService.Stepped:connect(function()
     Tool = Player.Character:FindFirstChildWhichIsA("Tool")
@@ -468,7 +484,6 @@ RunService.Stepped:connect(function()
                 AntiCheat:ClearAllChildren()
             end
         end
-
         for Index, BasePart in next, Player.Character:GetDescendants() do
             if BasePart:IsA("BasePart") and BasePart.CanCollide then
                 if NoClip or AutofarmMobs or FarmNonBlacklistedOre then
@@ -476,17 +491,14 @@ RunService.Stepped:connect(function()
                 end
             end
         end
-
         if AutofarmMobs or FarmNonBlacklistedOre then
             Player.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0.25, 0)
         end
-
         if (AutofarmMobs or FarmNonBlacklistedOre) and ToolName then
             if Player.Backpack:FindFirstChild(ToolName) then
                 Player.Backpack:FindFirstChild(ToolName).Parent = Player.Character
             end
         end
-
         if Tool and Tool:FindFirstChild("RemoteFunction") then
             if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Ores") and ClosestOre and FarmNonBlacklistedOre then                
                 local ClosestOre = GetClosestOre()
@@ -499,21 +511,23 @@ RunService.Stepped:connect(function()
                     ClosestOre.Properties:FindFirstChild("Owner")
                 })
             end
-
             if AutofarmMobs then
                 local MainPart = GetClosestMob()
 
-                if MainPart then
-                    if not ManualOverride then
-                        ToolName = Tool.Name
-                    end
+                if MainPart and MainPart.CFrame.Y < 750 then
+                    FPSCount = FPSCount + 1
+                    --MainPart.CFrame = MainPart.CFrame * CFrame.new(ClosestMobReturnPartOffset[1], ClosestMobReturnPartOffset[2], ClosestMobReturnPartOffset[3])
 
-                    --[[
-                    if BossSpecialCases[MainPart.Parent.Name] then
-                        BossSpecialCases[MainPart.Parent.Name]()
+                    if BossSpecialCases[MainPart.Parent.Name] and not EnemyDeadDebounce then
+                        BossSpecialCases[MainPart.Parent.Name][1]()
+                        EnemyDeadDebounce = true
+                        task.spawn(function()
+                            repeat task.wait() until MainPart.Parent:FindFirstChildWhichIsA("Humanoid").Health <= 0
+                            print("dead")
+                            BossSpecialCases[MainPart.Parent.Name][2]()
+                            EnemyDeadDebounce = false
+                        end)
                     end
-                    ]]
-
                     if Tool:FindFirstChild("Idle") then
                         Tool.Idle:Destroy()
 
@@ -521,31 +535,28 @@ RunService.Stepped:connect(function()
                         Tool.Parent = Player.Backpack
                         Tool.Parent = Player.Character
                     end
-
                     if Player.Character:FindFirstChild("Animate") and not Player.Character.Animate.Disabled then
                         for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
                             Track:Stop()
                         end
                         Player.Character.Animate.Disabled = true
                     end
-
-                    FPSCount = FPSCount + 1
                     if FPSCount >= 60 then
                         FPSCount = 0
                     end
-
                     if Tool:FindFirstChild("GunMain") or Tool:FindFirstChild("BowMain") then
-                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(5000, 5000, 5000)
+                        Player.Character.HumanoidRootPart.CFrame = MainPart.CFrame * CFrame.new(0, DistanceFromMob, 0)
+                        workspace.CurrentCamera.CameraScript = MainPart
                         if Firerate >= FPSCount then
                             if Tool:FindFirstChild("GunMain") then
                                 Tool.RemoteFunction:InvokeServer("shoot", {
                                     MainPart.CFrame,
-                                    Tool.Damage.Value
+                                    1
                                 })
                             else
                                 Tool.RemoteFunction:InvokeServer("hit", {
                                     MainPart.Parent.Humanoid,
-                                    Tool.Damage.Value,
+                                    1,
                                     true
                                 })
                             end
@@ -553,11 +564,11 @@ RunService.Stepped:connect(function()
                     else
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(0, DistanceFromMob, 0))
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
-                        Tool.Grip = CFrame.new(0, 0, DistanceFromMob)
+                        Tool.Grip = CFrame.new(0, 0, DistanceFromMob) * CFrame.new(ClosestMobReturnPartOffset[1], ClosestMobReturnPartOffset[2], ClosestMobReturnPartOffset[3])
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
-                                Tool.Damage.Value,
-                                0
+                                3,
+                                1
                             })
                         end
                     end
