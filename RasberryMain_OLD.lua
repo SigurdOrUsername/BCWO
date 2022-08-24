@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.4")
+print("V_OLD: 2.0.5")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -565,7 +565,7 @@ RunService.Stepped:connect(function()
                             end
                         end
                     else
-                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(Cords[1], Cords[3], Cords[2]))
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(Cords[1], Cords[2], Cords[3]))
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
 
                         local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
