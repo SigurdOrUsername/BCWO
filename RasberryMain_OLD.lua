@@ -531,14 +531,15 @@ RunService.Stepped:connect(function()
                             EnemyDeadDebounce = false
                         end)
                     end
-                    if Tool:FindFirstChild("Idle") then
-                        Tool.Idle:Destroy()
-
-                        --Reloading the tool animations
-                        Tool.Parent = Player.Backpack
-                        Tool.Parent = Player.Character
-                    end
                     if Player.Character:FindFirstChild("Animate") and not Player.Character.Animate.Disabled then
+                        if Tool:FindFirstChild("Idle") then
+                            Tool.Idle:Destroy()
+    
+                            --Reloading the tool animations
+                            Tool.Parent = Player.Backpack
+                            Tool.Parent = Player.Character
+                            --Tool.GripUp = Vector3.new(0, 1, 0)
+                        end
                         for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
                             Track:Stop()
                         end
@@ -571,8 +572,10 @@ RunService.Stepped:connect(function()
                         local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
                         local ZCord = Player.Character.HumanoidRootPart.CFrame.Z - MainPart.CFrame.Z
                         local YCord = Player.Character.HumanoidRootPart.CFrame.Y - MainPart.CFrame.Y
-
+                        
                         Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
+                        --Tool.GripUp = Vector3.new(0, 1, 0)
+                        --Tool.GripForward = Vector3.new(0, 0, 0)
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
                                 3,
@@ -580,6 +583,7 @@ RunService.Stepped:connect(function()
                             })
                         end
                     end
+                    ToolName = Tool.Name
                 end
             end
         end
