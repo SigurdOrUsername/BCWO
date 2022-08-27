@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.5")
+print("V_OLD: 2.0.6")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -380,7 +380,6 @@ OldWait = hookfunction(getrenv().wait, function(Args)
     return OldWait(Args)
 end)
 
-local ClosestMobReturnPartOffset = {0, 0, 0}
 local function GetClosestMob()
     local Last = math.huge
     local Closest
@@ -426,18 +425,14 @@ end
 --//SPECIAL CASES FOR MOBS
 
 local ToolName
+local IsDoingShrimp = false
 local BossSpecialCases = {
     ["Chirurgia, The Raging Tide"] = {
     function()
-        warn("offseting by -4 on X")
-        ClosestMobReturnPartOffset = {0, 0, 0}
-        --DistanceFromMob = 250
-        --task.wait(0.5)
-        --DistanceFromMob = 5000
+        IsDoingShrimp = true
     end,
     function()
-        ClosestMobReturnPartOffset = {0, 0, 0}
-        --DistanceFromMob = 5000
+        IsDoingShrimp = false
     end}
     --[[
     ["Astaroth, The Monarch of Darkness"] = function()
@@ -519,7 +514,6 @@ RunService.Stepped:connect(function()
 
                 if MainPart and MainPart.CFrame.Y < 750 then
                     FPSCount = FPSCount + 1
-                    --MainPart.CFrame = MainPart.CFrame * CFrame.new(ClosestMobReturnPartOffset[1], ClosestMobReturnPartOffset[2], ClosestMobReturnPartOffset[3])
 
                     if BossSpecialCases[MainPart.Parent.Name] and not EnemyDeadDebounce then
                         BossSpecialCases[MainPart.Parent.Name][1]()
@@ -538,6 +532,7 @@ RunService.Stepped:connect(function()
                             --Reloading the tool animations
                             Tool.Parent = Player.Backpack
                             Tool.Parent = Player.Character
+                            Tool.Grip = Tool.Grip * CFrame.fromOrientation(300, 0, 0)
                             --Tool.GripUp = Vector3.new(0, 1, 0)
                         end
                         for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
@@ -569,13 +564,17 @@ RunService.Stepped:connect(function()
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(Cords[1], Cords[2], Cords[3]))
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
 
-                        local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
-                        local ZCord = Player.Character.HumanoidRootPart.CFrame.Z - MainPart.CFrame.Z
-                        local YCord = Player.Character.HumanoidRootPart.CFrame.Y - MainPart.CFrame.Y
-                        
-                        Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
-                        --Tool.GripUp = Vector3.new(0, 1, 0)
-                        --Tool.GripForward = Vector3.new(0, 0, 0)
+                        if not IsDoingShrimp then
+                            local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
+                            local ZCord = Player.Character.HumanoidRootPart.CFrame.Z - MainPart.CFrame.Z
+                            local YCord = Player.Character.HumanoidRootPart.CFrame.Y - MainPart.CFrame.Y
+                            
+                            Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
+                        else
+                            warn("Is doing shrimp")
+                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
+                            Tool.Grip = CFrame.new(Tool.Grip.p) * CFrame.new(Tool.Handle.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
+                        end
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
                                 3,
