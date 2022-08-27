@@ -47,8 +47,8 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local Cords = {0, 3000, 0}
-local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 0, 3000, 0]")
+local Cords = {100, 3000, 100}
+local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 100, 3000, 100]")
 
 CordFolder:AddTextBox("X", function(Value)
     Cords[1] = Value
@@ -429,9 +429,11 @@ local IsDoingShrimp = false
 local BossSpecialCases = {
     ["Chirurgia, The Raging Tide"] = {
     function()
+        Cords[2] = 1000
         IsDoingShrimp = true
     end,
     function()
+        Cords[2] = 3000
         IsDoingShrimp = false
     end}    
     --[[
