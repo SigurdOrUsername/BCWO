@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.6")
+print("V_OLD: 2.0.65")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -47,8 +47,8 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local Cords = {0, 1000, 0}
-local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 0, 1000, 0]")
+local Cords = {0, 3000, 0}
+local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 0, 3000, 0]")
 
 CordFolder:AddTextBox("X", function(Value)
     Cords[1] = Value
@@ -433,7 +433,7 @@ local BossSpecialCases = {
     end,
     function()
         IsDoingShrimp = false
-    end}
+    end}    
     --[[
     ["Astaroth, The Monarch of Darkness"] = function()
         if Player.Backpack:FindFirstChild("Clarent") then
@@ -520,7 +520,6 @@ RunService.Stepped:connect(function()
                         EnemyDeadDebounce = true
                         task.spawn(function()
                             repeat task.wait() until MainPart.Parent:FindFirstChildWhichIsA("Humanoid").Health <= 0
-                            print("dead")
                             BossSpecialCases[MainPart.Parent.Name][2]()
                             EnemyDeadDebounce = false
                         end)
@@ -528,12 +527,9 @@ RunService.Stepped:connect(function()
                     if Player.Character:FindFirstChild("Animate") and not Player.Character.Animate.Disabled then
                         if Tool:FindFirstChild("Idle") then
                             Tool.Idle:Destroy()
-    
                             --Reloading the tool animations
                             Tool.Parent = Player.Backpack
                             Tool.Parent = Player.Character
-                            Tool.Grip = Tool.Grip * CFrame.fromOrientation(300, 0, 0)
-                            --Tool.GripUp = Vector3.new(0, 1, 0)
                         end
                         for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
                             Track:Stop()
@@ -571,7 +567,6 @@ RunService.Stepped:connect(function()
                             
                             Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
                         else
-                            warn("Is doing shrimp")
                             Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
                             Tool.Grip = CFrame.new(Tool.Grip.p) * CFrame.new(Tool.Handle.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
                         end
