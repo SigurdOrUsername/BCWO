@@ -1,6 +1,6 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/SigurdOrUsername/School-Project/main/RasberryMain_OLD.lua", true))()
 
-print("V_OLD: 2.0.65")
+print("V_OLD: 2.0.7")
 
 local Player = game:GetService("Players").LocalPlayer
 local RunService = game:GetService("RunService")
@@ -47,8 +47,8 @@ end, {
 Firerate_Slider:Set(100) --The slider's math is based on percentage. Eg. slider of 0, 60, 60 == 100%
 Firerate = 60
 
-local Cords = {100, 3000, 100}
-local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 100, 3000, 100]")
+local Cords = {0, 3000,0}
+local CordFolder = General_Tab:AddFolder("Cordinate Offsets [Default: 0, 3000, 0]")
 
 CordFolder:AddTextBox("X", function(Value)
     Cords[1] = Value
@@ -433,7 +433,7 @@ local BossSpecialCases = {
         IsDoingShrimp = true
     end,
     function()
-        Cords[2] = 3000
+        Cords[2] = 5000
         IsDoingShrimp = false
     end}    
     --[[
@@ -450,6 +450,7 @@ local BossSpecialCases = {
 }
 
 local FPSCount = 0
+local AddOrientation = CFrame.new()
 local EnemyDeadDebounce = false
 --local EggDebounce = false
 RunService.Stepped:connect(function()
@@ -526,18 +527,22 @@ RunService.Stepped:connect(function()
                             EnemyDeadDebounce = false
                         end)
                     end
-                    if Player.Character:FindFirstChild("Animate") and not Player.Character.Animate.Disabled then
-                        if Tool:FindFirstChild("Idle") then
-                            Tool.Idle:Destroy()
+                    --[[
+                    if Player.Character:FindFirstChild("Animate") then
+                        --if Tool:FindFirstChild("Idle") then
+                            --Tool.Idle:Destroy()
                             --Reloading the tool animations
-                            Tool.Parent = Player.Backpack
-                            Tool.Parent = Player.Character
-                        end
+                            --Tool.Parent = Player.Backpack
+                            --Tool.Parent = Player.Character
+                        --end
                         for Index, Track in next, Player.Character.Humanoid:GetPlayingAnimationTracks() do
-                            Track:Stop()
+                            if tostring(Track) ~= "toolnone" then
+                                Track:Stop()
+                            end
                         end
-                        Player.Character.Animate.Disabled = true
+                        --Player.Character.Animate.Disabled = true
                     end
+                    ]]--
                     if FPSCount >= 60 then
                         FPSCount = 0
                     end
@@ -561,17 +566,11 @@ RunService.Stepped:connect(function()
                     else
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(MainPart.Position + Vector3.new(Cords[1], Cords[2], Cords[3]))
                         workspace.CurrentCamera.CameraSubject = Tool.Handle
-
-                        if not IsDoingShrimp then
-                            local XCord = Player.Character.HumanoidRootPart.CFrame.X - MainPart.CFrame.X
-                            local ZCord = Player.Character.HumanoidRootPart.CFrame.Z - MainPart.CFrame.Z
-                            local YCord = Player.Character.HumanoidRootPart.CFrame.Y - MainPart.CFrame.Y
-                            
-                            Tool.Grip = CFrame.new(XCord, -ZCord, YCord)
-                        else
-                            Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
-                            Tool.Grip = CFrame.new(Tool.Grip.p) * CFrame.new(Tool.Handle.Position - MainPart.Position) * CFrame.fromOrientation(300, 0, 0)
+                        if IsDoingShrimp then
+                            AddOrientation = CFrame.fromOrientation(300, 0, 0)
                         end
+                        Tool.Grip = CFrame.new(Player.Character.HumanoidRootPart.Position - MainPart.Position) * AddOrientation
+                        Tool.Grip = CFrame.new(Tool.Grip.p) * CFrame.new(Tool.Handle.Position - MainPart.Position) * AddOrientation
                         if Firerate >= FPSCount then
                             Tool.RemoteFunction:InvokeServer("hit", {
                                 3,
